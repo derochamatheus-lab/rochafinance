@@ -2192,19 +2192,174 @@ window.addEventListener('DOMContentLoaded', () => {
   console.log('✅ Rocha Finance inicializado!');
 });
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-const supabaseUrl = 'https://qmtrqbvsdfsdaoitsiae.supabase.co';
+// ============================================================
+// SUPABASE INTEGRATION
+// ============================================================
+const SUPABASE_URL = 'https://cwlwiacdnmrclqtvawrt.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN3bHdpYWNkbm1yY2xxdHZhd3J0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4ODg5ODQsImV4cCI6MjA5NDQ2NDk4NH0.YFtnax5WslqkpHZayfkuKlAmaem9-ubrYAwTZvzHEaA';
 
-const supabaseKey = 'process.env.SUPABASE_KEY';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const supabaseClient = supabase.createClient(
-  supabaseUrl,
-  supabaseKey
-);
+// --- SALVAR transação no Supabase ---
+async function salvarTransacaoSupabase(tx) {
+  const { error } = await db
+    .from('transactions')
+    .insert({
+      id: tx.id,
+      description: tx.description,
+      amount: tx.amount,
+      date: tx.date,
+      category_id: tx.categoryId,
+      type: tx.type,
+      source: tx.source || 'manual',
+      created_at: tx.createdAt
+    });
+  if (error) console.error('Erro ao salvar no Supabase:', error);
+}
 
-console.log('Supabase conectado');
+// --- DELETAR transação no Supabase ---
+async function deletarTransacaoSupabase(id) {
+  const { error } = await db
+    .from('transactions')
+    .delete()
+    .eq('id', id);
+  if (error) console.error('Erro ao deletar no Supabase:', error);
+}
+
+// --- BUSCAR todas as transações do Supabase ---
+async function buscarTransacoesSupabase() {
+  const { data, error } = await db
+    .from('transactions')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) { console.error('Erro ao buscar do Supabase:', error); return; }
+
+  if (data && data.length > 0) {
+    const txs = data.map(row => ({
+      id: row.id,
+      description: row.description,
+      amount: parseFloat(row.amount),
+      date: row.date,
+      categoryId: row.category_id,
+      type: row.type,
+      source: row.source,
+      createdAt: row.created_at
+    }));
+    appModules.state.setState({ transactions: txs });
+    appModules.navigation.renderDashboard();
+    appModules.navigation.renderTransactions();
+  }
+}
+
+// --- TEMPO REAL: atualiza todos os dispositivos automaticamente ---
+db.channel('transactions-changes')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' },
+    () => buscarTransacoesSupabase()
+  )
+  .subscribe();
+
+// --- Sobrescreve o save para também salvar no Supabase ---
+const _originalSave = appModules.transactions.save.bind(appModules.transactions);
+appModules.transactions.save = async function() {
+  const id = document.getElementById('tx-id').value;
+  const desc = document.getElementById('tx-desc').value.trim();
+  const amount = parseFloat(document.getElementById('tx-amount').value);
+  const date = document.getElementById('tx-date').value;
+  const categoryId = document.getElementById('tx-category').value;
+  const type = document.getElementById('tx-type').value;
+  const source = document.getElementById('tx-source').value;
+
+  if (!desc || !amount || !date || !categoryId) {
+    appModules.ui.showMessage('Atenção', 'Preencha todos os campos!', 'error');
+    return;
+  }
+
+  const state = appModules.state.getState();
+  let tx;
+  if (id) {
+    const idx = state.transactions.findIndex(t => t.id === id);
+    if (idx > -1) {
+      state.transactions[idx] = { ...state.transactions[idx], description: desc, amount, date, categoryId, type };
+      tx = state.transactions[idx];
+      // Atualiza no Supabase
+      await db.from('transactions').update({
+        description: desc, amount, date, category_id: categoryId, type
+      }).eq('id', id);
+    }
+  } else {
+    tx = { id: Utils.generateId(), description: desc, amount, date, categoryId, type, source, createdAt: new Date().toISOString() };
+    state.transactions.push(tx);
+    await salvarTransacaoSupabase(tx);
+  }
+
+  appModules.state.setState(state);
+  appModules.modals.close('modal-transaction');
+  appModules.ui.showMessage('Sucesso', 'Transação salva!');
+  appModules.navigation.renderDashboard();
+  appModules.navigation.renderTransactions();
+};
+
+// --- Sobrescreve o delete para também deletar no Supabase ---
+appModules.transactions.delete = async function(id) {
+  if (confirm('Tem certeza que deseja excluir?')) {
+    const state = appModules.state.getState();
+    state.transactions = state.transactions.filter(t => t.id !== id);
+    appModules.state.setState(state);
+    await deletarTransacaoSupabase(id);
+    appModules.ui.showMessage('Sucesso', 'Transação removida!');
+    appModules.navigation.renderTransactions();
+    appModules.navigation.renderDashboard();
+  }
+};
+
+// --- Sobrescreve o sendMessage do chat para também salvar no Supabase ---
+const _originalSendMessage = appModules.chat.sendMessage.bind(appModules.chat);
+appModules.chat.sendMessage = function() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  appModules.chat.appendMessage(text, true);
+  input.value = '';
+
+  setTimeout(async () => {
+    const state = appModules.state.getState();
+    const result = NLPModule.process(text, state);
+
+    if (result.success) {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const tx = {
+        id: Utils.generateId(),
+        description: result.description,
+        amount: result.amount,
+        date: todayStr,
+        categoryId: result.categoryId,
+        type: result.type,
+        source: 'chat',
+        createdAt: new Date().toISOString()
+      };
+      state.transactions.push(tx);
+      appModules.state.setState(state);
+      await salvarTransacaoSupabase(tx);
+
+      const cat = Utils.getCategory(result.categoryId, state.categories);
+      appModules.chat.appendMessage(`✅ <strong>${result.description}</strong><br>${Utils.formatCurrency(result.amount)} &mdash; ${cat.name}<br><small style="color:var(--text-muted)">Errou a categoria? Edite no histórico.</small>`, false);
+    } else {
+      appModules.chat.appendMessage(`❌ ${result.error}`, false);
+    }
+  }, 500);
+};
+
+// --- Inicializa: carrega dados do Supabase ao abrir ---
+window.addEventListener('load', () => {
+  buscarTransacoesSupabase();
+  console.log('✅ Supabase conectado!');
+});
 </script>
 
 </body>
