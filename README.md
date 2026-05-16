@@ -1,1114 +1,2077 @@
+[rocha-finance.html](https://github.com/user-attachments/files/27839090/rocha-finance.html)
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rocha Finance</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6; /* Gray-100 */
-        }
-        .hide-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* WhatsApp Chat Styles */
-        .chat-bg {
-            background-color: #efeae2;
-            background-image: url('https://w0.peakpx.com/wallpaper/508/135/HD-wallpaper-whatsapp-background-solid-color.jpg');
-            background-blend-mode: overlay;
-        }
-        .msg-bubble {
-            max-width: 80%;
-            word-wrap: break-word;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rocha Finance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/fill/style.css">
+
+<style>
+  :root {
+    --bg: #0f0f0e;
+    --surface: #181817;
+    --surface2: #212120;
+    --border: #2a2a28;
+    --border2: #323230;
+    --text: #f0ede8;
+    --text-muted: #7a7870;
+    --text-soft: #a8a49e;
+    --accent: #c8f55a;
+    --accent-dark: #9dc43a;
+    --accent-muted: #c8f55a22;
+    --red: #ff5a5a;
+    --red-muted: #ff5a5a18;
+    --green: #5af5a0;
+    --green-muted: #5af5a018;
+    --gold: #f5c842;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ---- LAYOUT ---- */
+  .app-shell {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ---- SIDEBAR ---- */
+  .sidebar {
+    width: 240px;
+    min-width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 28px 0 20px;
+    gap: 4px;
+    transition: width 0.3s ease;
+  }
+
+  .sidebar-logo {
+    padding: 0 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-mark {
+    width: 36px;
+    height: 36px;
+    background: var(--accent);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .logo-mark span {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: #0f0f0e;
+    font-weight: 400;
+    line-height: 1;
+  }
+
+  .logo-text {
+    font-family: 'DM Serif Display', serif;
+    font-size: 17px;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+
+  .logo-text span {
+    color: var(--accent);
+  }
+
+  .nav-section-label {
+    padding: 8px 20px 4px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: var(--text-soft);
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    width: 100%;
+    text-align: left;
+    border-radius: 0;
+    transition: all 0.15s ease;
+    position: relative;
+  }
+
+  .nav-btn i { font-size: 17px; flex-shrink: 0; }
+
+  .nav-btn:hover {
+    color: var(--text);
+    background: var(--surface2);
+  }
+
+  .nav-btn.active {
+    color: var(--accent);
+    background: var(--accent-muted);
+    font-weight: 500;
+  }
+
+  .nav-btn.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 60%;
+    background: var(--accent);
+    border-radius: 0 3px 3px 0;
+  }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 12px 20px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .month-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+
+  .month-nav button {
+    background: none;
+    border: none;
+    color: var(--text-soft);
+    cursor: pointer;
+    padding: 4px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    transition: color 0.15s;
+  }
+
+  .month-nav button:hover { color: var(--accent); }
+
+  #current-month-display {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  /* ---- MAIN CONTENT ---- */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: blur(12px);
+  }
+
+  .topbar-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--text);
+    letter-spacing: -0.4px;
+  }
+
+  .topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 16px;
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #0f0f0e;
+  }
+
+  .btn-primary:hover {
+    background: var(--accent-dark);
+    transform: translateY(-1px);
+  }
+
+  .btn-ghost {
+    background: var(--surface2);
+    color: var(--text-soft);
+    border: 1px solid var(--border);
+  }
+
+  .btn-ghost:hover {
+    color: var(--text);
+    border-color: var(--border2);
+  }
+
+  .btn-danger {
+    background: var(--red-muted);
+    color: var(--red);
+    border: 1px solid transparent;
+  }
+
+  .btn-danger:hover {
+    border-color: var(--red);
+  }
+
+  .page-content {
+    padding: 28px;
+    flex: 1;
+  }
+
+  /* ---- TAB CONTENT ---- */
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ---- GRID ---- */
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  /* ---- CARDS ---- */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+  }
+
+  .card-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .card-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--text);
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+  }
+
+  .card-value.income { color: var(--green); }
+  .card-value.expense { color: var(--red); }
+  .card-value.negative { color: var(--red); }
+
+  .balance-hero {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 28px 24px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .balance-hero::before {
+    content: '';
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 160px;
+    height: 160px;
+    background: radial-gradient(circle, var(--accent-muted) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .balance-hero-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+
+  .balance-hero-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 48px;
+    color: var(--text);
+    letter-spacing: -1.5px;
+    line-height: 1;
+  }
+
+  .balance-hero-sub {
+    margin-top: 14px;
+    display: flex;
+    gap: 20px;
+  }
+
+  .balance-hero-sub span {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .balance-hero-sub i { font-size: 14px; }
+
+  /* ---- CHART ---- */
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+  }
+
+  .chart-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-soft);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .chart-wrapper {
+    position: relative;
+    height: 220px;
+  }
+
+  /* ---- TRANSACTIONS TABLE ---- */
+  .tx-table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .tx-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .tx-table thead th {
+    padding: 12px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tx-table thead th:last-child { text-align: center; }
+
+  .tx-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+
+  .tx-table tbody tr:last-child { border-bottom: none; }
+
+  .tx-table tbody tr:hover { background: var(--surface2); }
+
+  .tx-table td {
+    padding: 13px 16px;
+    font-size: 13px;
+  }
+
+  .tx-date { color: var(--text-muted); }
+  .tx-desc { color: var(--text); font-weight: 500; }
+
+  .cat-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .tx-amount {
+    text-align: right;
+    font-weight: 600;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tx-amount.income { color: var(--green); }
+  .tx-amount.expense { color: var(--text); }
+
+  .tx-actions { text-align: center; }
+
+  .icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 5px;
+    border-radius: 6px;
+    transition: all 0.15s;
+    font-size: 15px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .icon-btn:hover { color: var(--red); background: var(--red-muted); }
+
+  /* ---- EMPTY STATE ---- */
+  .empty-state {
+    padding: 48px;
+    text-align: center;
+    color: var(--text-muted);
+  }
+
+  .empty-state i { font-size: 36px; margin-bottom: 12px; display: block; }
+  .empty-state p { font-size: 14px; }
+
+  /* ---- CHAT ---- */
+  .chat-wrap {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 130px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .chat-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface2);
+  }
+
+  .chat-avatar {
+    width: 36px;
+    height: 36px;
+    background: var(--accent-muted);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: 18px;
+  }
+
+  .chat-header-text h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .chat-header-text p {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .online-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 4px;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  #chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--bg);
+  }
+
+  .msg-user {
+    align-self: flex-end;
+    max-width: 72%;
+  }
+
+  .msg-bot {
+    align-self: flex-start;
+    max-width: 72%;
+  }
+
+  .msg-bubble {
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  }
+
+  .msg-user .msg-bubble {
+    background: var(--accent);
+    color: #0f0f0e;
+    border-bottom-right-radius: 4px;
+    font-weight: 500;
+  }
+
+  .msg-bot .msg-bubble {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+  }
+
+  .msg-time {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-align: right;
+    margin-top: 3px;
+    padding: 0 4px;
+  }
+
+  .msg-user .msg-time { text-align: right; }
+  .msg-bot .msg-time { text-align: left; }
+
+  .chat-input-wrap {
+    padding: 14px 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    background: var(--surface2);
+  }
+
+  .chat-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .chat-input::placeholder { color: var(--text-muted); }
+  .chat-input:focus { border-color: var(--accent); }
+
+  .chat-send-btn {
+    width: 38px;
+    height: 38px;
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0f0f0e;
+    font-size: 17px;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+
+  .chat-send-btn:hover {
+    background: var(--accent-dark);
+    transform: scale(1.05);
+  }
+
+  .chat-hint {
+    padding: 10px 16px;
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--surface2);
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .chat-hint span {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 3px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--text-soft);
+  }
+
+  .chat-hint span:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* ---- RECURRING ---- */
+  .rec-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+
+  .rec-item:last-child { border-bottom: none; }
+  .rec-item:hover { background: var(--surface2); }
+
+  .rec-info h4 { font-size: 14px; font-weight: 500; color: var(--text); }
+  .rec-info p { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+
+  .rec-amount {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: var(--text);
+  }
+
+  .rec-amount.income { color: var(--green); }
+  .rec-amount.expense { color: var(--red); }
+
+  /* ---- REPORT CARDS ---- */
+  .report-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+
+  .report-card-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+
+  .report-card-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px;
+    color: var(--text);
+  }
+
+  .report-card-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  /* ---- BUDGET ---- */
+  .budget-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .budget-item:last-child { border-bottom: none; }
+
+  .budget-cat-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  .budget-cat-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    flex: 1;
+  }
+
+  .budget-input-wrap {
+    display: flex;
+    align-items: center;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0 12px;
+    height: 36px;
+    gap: 6px;
+  }
+
+  .budget-input-wrap span {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .budget-input {
+    background: none;
+    border: none;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    width: 80px;
+    text-align: right;
+    outline: none;
+  }
+
+  /* ---- CATEGORIES GRID ---- */
+  #categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+  }
+
+  .cat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: border-color 0.15s;
+  }
+
+  .cat-card:hover { border-color: var(--border2); }
+
+  .cat-card-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .cat-card-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .cat-card-type {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+
+  /* ---- MODALS ---- */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+
+  .modal-overlay.hidden { display: none; }
+
+  .modal-box {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 20px;
+    width: 420px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow);
+    animation: modal-in 0.2s ease;
+  }
+
+  @keyframes modal-in {
+    from { opacity: 0; transform: translateY(12px) scale(0.97); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 24px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .modal-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--text);
+  }
+
+  .modal-close {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.15s;
+  }
+
+  .modal-close:hover { color: var(--text); border-color: var(--border2); }
+
+  .modal-body { padding: 20px 24px 24px; }
+
+  .form-group { margin-bottom: 16px; }
+
+  .form-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 7px;
+  }
+
+  .form-input, .form-select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    outline: none;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+
+  .form-input:focus, .form-select:focus {
+    border-color: var(--accent);
+  }
+
+  .form-input::placeholder { color: var(--text-muted); }
+
+  .type-toggle {
+    display: flex;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+    gap: 4px;
+  }
+
+  .type-toggle button {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 7px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    background: none;
+    color: var(--text-soft);
+    transition: all 0.15s;
+  }
+
+  .type-toggle button.active-expense {
+    background: var(--red-muted);
+    color: var(--red);
+  }
+
+  .type-toggle button.active-income {
+    background: var(--green-muted);
+    color: var(--green);
+  }
+
+  .modal-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    padding: 0 24px 24px;
+  }
+
+  /* ---- TOAST ---- */
+  #message-box {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: var(--shadow);
+    z-index: 200;
+    animation: slide-in 0.3s ease;
+    min-width: 260px;
+  }
+
+  #message-box.hidden { display: none; }
+
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .toast-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .toast-content h4 { font-size: 13px; font-weight: 600; color: var(--text); }
+  .toast-content p { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+
+  /* ---- SCROLLBAR ---- */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+  /* ---- DIVIDER ---- */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-soft);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ---- MOBILE ---- */
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .grid-3 { grid-template-columns: 1fr; }
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+</style>
 </head>
-<body class="text-gray-800 h-screen flex flex-col md:flex-row overflow-hidden">
+<body>
 
-    <!-- Sidebar / Bottom Nav -->
-    <nav class="bg-white shadow-lg z-20 md:w-64 md:flex-shrink-0 flex md:flex-col justify-between order-last md:order-first fixed bottom-0 w-full md:relative md:h-screen border-t md:border-r border-gray-200">
-        <div class="hidden md:flex items-center justify-center h-20 border-b border-gray-100 px-6">
-            <i class="ph-fill ph-wallet text-3xl text-emerald-600 mr-2"></i>
-            <h1 class="text-xl font-bold text-gray-800 tracking-tight">Rocha Finance</h1>
-        </div>
-        
-        <div class="flex md:flex-col w-full md:flex-1 px-2 md:px-4 py-2 md:py-6 justify-between md:justify-start gap-1 md:gap-2">
-            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn flex-1 md:flex-none flex flex-col md:flex-row items-center md:justify-start p-2 md:p-3 rounded-xl hover:bg-gray-50 text-emerald-600 bg-emerald-50 transition-colors">
-                <i class="ph ph-squares-four text-2xl md:mr-3"></i>
-                <span class="text-xs md:text-sm font-medium mt-1 md:mt-0">Painel</span>
-            </button>
-            <button onclick="switchTab('transactions')" id="nav-transactions" class="nav-btn flex-1 md:flex-none flex flex-col md:flex-row items-center md:justify-start p-2 md:p-3 rounded-xl hover:bg-gray-50 text-gray-500 transition-colors">
-                <i class="ph ph-list-dashes text-2xl md:mr-3"></i>
-                <span class="text-xs md:text-sm font-medium mt-1 md:mt-0">Histórico</span>
-            </button>
-            <button onclick="switchTab('chat')" id="nav-chat" class="nav-btn flex-1 md:flex-none flex flex-col md:flex-row items-center md:justify-start p-2 md:p-3 rounded-xl hover:bg-gray-50 text-gray-500 transition-colors relative">
-                <i class="ph ph-whatsapp-logo text-2xl md:mr-3 text-green-500"></i>
-                <span class="text-xs md:text-sm font-medium mt-1 md:mt-0">WhatsApp</span>
-                <span class="absolute top-2 right-2 md:right-4 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-            </button>
-            <button onclick="switchTab('budgets')" id="nav-budgets" class="nav-btn flex-1 md:flex-none flex flex-col md:flex-row items-center md:justify-start p-2 md:p-3 rounded-xl hover:bg-gray-50 text-gray-500 transition-colors">
-                <i class="ph ph-target text-2xl md:mr-3"></i>
-                <span class="text-xs md:text-sm font-medium mt-1 md:mt-0">Limites</span>
-            </button>
-            <button onclick="switchTab('categories')" id="nav-categories" class="nav-btn flex-1 md:flex-none flex flex-col md:flex-row items-center md:justify-start p-2 md:p-3 rounded-xl hover:bg-gray-50 text-gray-500 transition-colors">
-                <i class="ph ph-tag text-2xl md:mr-3"></i>
-                <span class="text-xs md:text-sm font-medium mt-1 md:mt-0">Categorias</span>
-            </button>
-        </div>
-    </nav>
+<div class="app-shell">
 
-    <!-- Main Content Area -->
-    <main class="flex-1 flex flex-col h-[calc(100vh-64px)] md:h-screen overflow-hidden bg-gray-50 relative">
-        
-        <!-- Header -->
-        <header class="bg-white shadow-sm z-10 px-6 py-4 flex justify-between items-center flex-shrink-0">
-            <div class="md:hidden flex items-center">
-                <i class="ph-fill ph-wallet text-2xl text-emerald-600 mr-2"></i>
-                <h1 class="text-lg font-bold text-gray-800">Rocha Finance</h1>
-            </div>
-            <div class="hidden md:block">
-                <h2 class="text-xl font-semibold text-gray-800" id="current-view-title">Visão Geral</h2>
-            </div>
-            <div class="flex items-center space-x-4 bg-gray-100 rounded-lg p-1">
-                <button onclick="changeMonth(-1)" class="p-2 text-gray-600 hover:text-emerald-600 transition"><i class="ph ph-caret-left font-bold"></i></button>
-                <span id="current-month-display" class="font-medium text-sm md:text-base min-w-[100px] text-center capitalize">Maio 2026</span>
-                <button onclick="changeMonth(1)" class="p-2 text-gray-600 hover:text-emerald-600 transition"><i class="ph ph-caret-right font-bold"></i></button>
-            </div>
-        </header>
-
-        <!-- Scrollable Content -->
-        <div class="flex-1 overflow-y-auto p-4 md:p-6 pb-24 md:pb-6 hide-scrollbar">
-            
-            <!-- TAB: Dashboard -->
-            <div id="tab-dashboard" class="tab-content active max-w-5xl mx-auto">
-                <!-- Summary Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-                        <p class="text-sm text-gray-500 font-medium mb-1">Saldo Total</p>
-                        <h3 id="card-balance" class="text-3xl font-bold text-gray-800">R$ 0,00</h3>
-                    </div>
-                    <div class="bg-emerald-50 rounded-2xl p-5 shadow-sm border border-emerald-100">
-                        <div class="flex justify-between items-center mb-1">
-                            <p class="text-sm text-emerald-700 font-medium">Entradas</p>
-                            <i class="ph ph-arrow-up-right text-emerald-600 bg-emerald-100 p-1 rounded-full"></i>
-                        </div>
-                        <h3 id="card-income" class="text-2xl font-bold text-emerald-700">R$ 0,00</h3>
-                    </div>
-                    <div class="bg-red-50 rounded-2xl p-5 shadow-sm border border-red-100">
-                        <div class="flex justify-between items-center mb-1">
-                            <p class="text-sm text-red-700 font-medium">Saídas</p>
-                            <i class="ph ph-arrow-down-right text-red-600 bg-red-100 p-1 rounded-full"></i>
-                        </div>
-                        <h3 id="card-expense" class="text-2xl font-bold text-red-700">R$ 0,00</h3>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- Categories Chart -->
-                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Despesas por Categoria</h3>
-                        <div class="relative h-64 w-full flex items-center justify-center">
-                            <canvas id="expensesChart"></canvas>
-                            <div id="no-chart-data" class="absolute inset-0 flex items-center justify-center text-gray-400 hidden">
-                                Sem dados para este mês
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Budget Progress -->
-                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Status dos Limites</h3>
-                        <div id="dashboard-budgets" class="space-y-4">
-                            <!-- Populated by JS -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB: Transactions -->
-            <div id="tab-transactions" class="tab-content max-w-5xl mx-auto">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-semibold text-gray-800">Histórico de Lançamentos</h3>
-                    <button onclick="openTransactionModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium transition shadow-sm flex items-center">
-                        <i class="ph ph-plus font-bold mr-2"></i> Novo
-                    </button>
-                </div>
-                
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
-                                    <th class="p-4 font-medium">Data</th>
-                                    <th class="p-4 font-medium">Descrição</th>
-                                    <th class="p-4 font-medium">Categoria</th>
-                                    <th class="p-4 font-medium text-right">Valor</th>
-                                    <th class="p-4 font-medium text-center">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="transactions-list" class="divide-y divide-gray-100">
-                                <!-- Populated by JS -->
-                            </tbody>
-                        </table>
-                        <div id="empty-transactions" class="py-12 text-center text-gray-500 hidden">
-                            <i class="ph ph-receipt text-4xl mb-2 text-gray-300"></i>
-                            <p>Nenhuma transação neste mês.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB: WhatsApp Simulator -->
-            <div id="tab-chat" class="tab-content max-w-2xl mx-auto h-[70vh] md:h-[80vh] flex flex-col">
-                <div class="bg-[#075e54] text-white p-4 rounded-t-2xl flex items-center shadow-md">
-                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center mr-3">
-                        <i class="ph-fill ph-robot text-[#075e54] text-2xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-semibold text-lg leading-tight">Bot Rocha Finance</h3>
-                        <p class="text-xs text-green-100">Inteligência Artificial Ativa</p>
-                    </div>
-                </div>
-                
-                <div class="flex-1 chat-bg overflow-y-auto p-4 flex flex-col space-y-4" id="chat-messages">
-                    <!-- Welcome Message -->
-                    <div class="flex justify-start">
-                        <div class="bg-white text-gray-800 p-3 rounded-xl rounded-tl-none msg-bubble shadow-sm text-sm">
-                            Olá! Eu sou seu assistente financeiro. 🤖<br><br>
-                            Você pode enviar mensagens como:<br>
-                            👉 <i>"Gasolina 50"</i><br>
-                            👉 <i>"Mercado R$ 150,00"</i><br>
-                            👉 <i>"Salario 5000"</i><br><br>
-                            Vou registrar automaticamente. Se eu errar a categoria, basta editar no histórico e eu <b>aprenderei para a próxima vez</b>!
-                            <span class="block text-right text-[10px] text-gray-400 mt-1">Agora</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-gray-100 p-3 rounded-b-2xl flex items-center space-x-2">
-                    <input type="text" id="chat-input" placeholder="Digite uma despesa..." class="flex-1 bg-white border-none rounded-full px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm" onkeypress="handleChatKeyPress(event)">
-                    <button onclick="sendChatMessage()" class="bg-[#128c7e] hover:bg-[#075e54] text-white w-12 h-12 rounded-full flex items-center justify-center transition shadow-md flex-shrink-0">
-                        <i class="ph-fill ph-paper-plane-right text-xl"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- TAB: Budgets -->
-            <div id="tab-budgets" class="tab-content max-w-3xl mx-auto">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-semibold text-gray-800">Limites por Categoria (Orçamento)</h3>
-                </div>
-                <p class="text-gray-500 mb-6 text-sm">Defina um limite de gastos para cada categoria de despesa. Os valores salvos valem para todos os meses.</p>
-                
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                    <div id="budget-list" class="space-y-4">
-                        <!-- Populated by JS -->
-                    </div>
-                    <div class="mt-6 pt-4 border-t border-gray-100 flex justify-end">
-                        <button onclick="saveBudgets()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg font-medium transition shadow-sm">
-                            Salvar Limites
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB: Categories -->
-            <div id="tab-categories" class="tab-content max-w-3xl mx-auto">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-semibold text-gray-800">Gerenciar Categorias</h3>
-                    <button onclick="openCategoryModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium transition shadow-sm flex items-center">
-                        <i class="ph ph-plus font-bold mr-2"></i> Nova
-                    </button>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="categories-grid">
-                    <!-- Populated by JS -->
-                </div>
-            </div>
-
-        </div>
-    </main>
-
-    <!-- Modal: Transaction -->
-    <div id="modal-transaction" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center backdrop-blur-sm p-4">
-        <div class="bg-white rounded-2xl w-full max-w-md shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                <h3 class="text-lg font-bold text-gray-800" id="modal-tx-title">Nova Transação</h3>
-                <button onclick="closeModal('modal-transaction')" class="text-gray-400 hover:text-red-500 transition"><i class="ph ph-x text-xl"></i></button>
-            </div>
-            
-            <div class="p-6 overflow-y-auto hide-scrollbar">
-                <form id="form-transaction" class="space-y-4">
-                    <input type="hidden" id="tx-id">
-                    <input type="hidden" id="tx-source"> <!-- To track if it came from chat -->
-                    
-                    <div class="flex bg-gray-100 p-1 rounded-lg">
-                        <button type="button" id="btn-type-expense" onclick="setTxType('expense')" class="flex-1 py-2 text-sm font-medium rounded-md bg-white shadow-sm text-red-600 transition">Saída</button>
-                        <button type="button" id="btn-type-income" onclick="setTxType('income')" class="flex-1 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-emerald-600 transition">Entrada</button>
-                        <input type="hidden" id="tx-type" value="expense">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
-                        <input type="text" id="tx-desc" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" placeholder="Ex: Conta de Luz">
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Valor (R$)</label>
-                            <input type="number" step="0.01" id="tx-amount" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" placeholder="0.00">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Data</label>
-                            <input type="date" id="tx-date" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
-                        <select id="tx-category" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
-                            <!-- Populated JS -->
-                        </select>
-                    </div>
-
-                    <div id="installments-container" class="pt-2 border-t border-gray-100 mt-4">
-                        <label class="flex items-center space-x-2 cursor-pointer">
-                            <input type="checkbox" id="tx-is-installment" onchange="toggleInstallments()" class="rounded text-emerald-600 focus:ring-emerald-500">
-                            <span class="text-sm font-medium text-gray-700">Lançamento parcelado (meses)</span>
-                        </label>
-                        <div id="installments-opts" class="hidden mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                            <label class="block text-xs text-gray-500 mb-1">Número de parcelas</label>
-                            <input type="number" id="tx-installments" min="2" max="60" value="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 outline-none transition">
-                            <p class="text-xs text-gray-500 mt-2"><i class="ph ph-info"></i> O valor total será dividido pelo número de parcelas informadas.</p>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            
-            <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end space-x-3 mt-auto">
-                <button onclick="closeModal('modal-transaction')" class="px-4 py-2 text-gray-600 hover:bg-gray-200 rounded-lg font-medium transition">Cancelar</button>
-                <button onclick="saveTransaction()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition shadow-sm">Salvar</button>
-            </div>
-        </div>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark"><span>R</span></div>
+      <div class="logo-text">Rocha <span>Finance</span></div>
     </div>
 
-    <!-- Modal: Category -->
-    <div id="modal-category" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center backdrop-blur-sm p-4">
-        <div class="bg-white rounded-2xl w-full max-w-sm shadow-xl overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                <h3 class="text-lg font-bold text-gray-800">Nova Categoria</h3>
-                <button onclick="closeModal('modal-category')" class="text-gray-400 hover:text-red-500 transition"><i class="ph ph-x text-xl"></i></button>
-            </div>
-            <div class="p-6">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome da Categoria</label>
-                        <input type="text" id="cat-name" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 outline-none transition" placeholder="Ex: Viagens">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo Predominante</label>
-                        <select id="cat-type" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 outline-none transition">
-                            <option value="expense">Saída (Despesa)</option>
-                            <option value="income">Entrada (Receita)</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end space-x-3">
-                <button onclick="closeModal('modal-category')" class="px-4 py-2 text-gray-600 hover:bg-gray-200 rounded-lg font-medium transition">Cancelar</button>
-                <button onclick="saveCategory()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition shadow-sm">Salvar</button>
-            </div>
-        </div>
+    <div class="nav-section-label">Principal</div>
+    <button class="nav-btn active" id="nav-dashboard" onclick="appModules.navigation.switchTab('dashboard')">
+      <i class="ph ph-squares-four"></i> Visão Geral
+    </button>
+    <button class="nav-btn" id="nav-transactions" onclick="appModules.navigation.switchTab('transactions')">
+      <i class="ph ph-arrows-left-right"></i> Histórico
+    </button>
+    <button class="nav-btn" id="nav-chat" onclick="appModules.navigation.switchTab('chat')">
+      <i class="ph ph-robot"></i> Assistente IA
+    </button>
+
+    <div class="nav-section-label" style="margin-top:8px">Gestão</div>
+    <button class="nav-btn" id="nav-recurring" onclick="appModules.navigation.switchTab('recurring')">
+      <i class="ph ph-repeat"></i> Recorrentes
+    </button>
+    <button class="nav-btn" id="nav-reports" onclick="appModules.navigation.switchTab('reports')">
+      <i class="ph ph-chart-bar"></i> Relatórios
+    </button>
+    <button class="nav-btn" id="nav-budgets" onclick="appModules.navigation.switchTab('budgets')">
+      <i class="ph ph-target"></i> Limites
+    </button>
+    <button class="nav-btn" id="nav-categories" onclick="appModules.navigation.switchTab('categories')">
+      <i class="ph ph-tag"></i> Categorias
+    </button>
+
+    <div class="sidebar-footer">
+      <div class="month-nav">
+        <button onclick="appModules.navigation.changeMonth(-1)"><i class="ph ph-caret-left"></i></button>
+        <span id="current-month-display">Maio 2026</span>
+        <button onclick="appModules.navigation.changeMonth(1)"><i class="ph ph-caret-right"></i></button>
+      </div>
+      <button class="nav-btn" style="margin-top:8px;padding-left:0;color:var(--text-muted)" onclick="appModules.auth.logout()">
+        <i class="ph ph-sign-out"></i> Sair
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <h1 class="topbar-title" id="current-view-title">Visão Geral</h1>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost" onclick="ExportImportModule.exportToCSV(appModules.state.getState().transactions, appModules.state.getState().categories)">
+          <i class="ph ph-download-simple"></i> Exportar
+        </button>
+        <button class="btn btn-primary" onclick="appModules.transactions.openModal()">
+          <i class="ph ph-plus"></i> Nova Transação
+        </button>
+      </div>
     </div>
 
-    <!-- Message Box Overlay (replaces alert) -->
-    <div id="message-box" class="fixed inset-0 bg-black/40 z-[60] hidden flex items-center justify-center backdrop-blur-sm p-4">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-sm text-center shadow-2xl transform scale-95 transition-transform duration-200" id="msg-box-content">
-            <div id="msg-icon" class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-emerald-100 mb-4">
-                <i class="ph ph-check text-2xl text-emerald-600"></i>
+    <div class="page-content">
+
+      <!-- DASHBOARD -->
+      <div id="tab-dashboard" class="tab-content active">
+        <div class="balance-hero">
+          <div class="balance-hero-label">Saldo do Mês</div>
+          <div class="balance-hero-value" id="card-balance">R$ 0,00</div>
+          <div class="balance-hero-sub">
+            <span style="color:var(--green)"><i class="ph ph-arrow-up-right"></i> <span id="card-income">R$ 0,00</span></span>
+            <span style="color:var(--red)"><i class="ph ph-arrow-down-right"></i> <span id="card-expense">R$ 0,00</span></span>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="chart-card">
+            <div class="chart-title"><i class="ph ph-chart-donut"></i> Gastos por Categoria</div>
+            <div class="chart-wrapper">
+              <canvas id="expensesChart"></canvas>
+              <div id="no-chart-data" class="empty-state hidden" style="padding:30px">
+                <i class="ph ph-chart-donut" style="font-size:28px"></i>
+                <p>Sem gastos no período</p>
+              </div>
             </div>
-            <h3 class="text-lg font-bold text-gray-900 mb-2" id="msg-title">Sucesso</h3>
-            <p class="text-sm text-gray-500 mb-6" id="msg-text">Operação realizada.</p>
-            <button onclick="closeMessageBox()" class="w-full inline-flex justify-center rounded-lg border border-transparent bg-emerald-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 sm:text-sm">
-                OK
+          </div>
+
+          <div class="card" style="display:flex;flex-direction:column;gap:14px">
+            <div class="section-title"><i class="ph ph-lightning"></i> Ações Rápidas</div>
+            <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="appModules.transactions.openModal()">
+              <i class="ph ph-plus-circle"></i> Lançar Transação
             </button>
+            <button class="btn btn-ghost" style="width:100%;justify-content:center;padding:12px" onclick="appModules.navigation.switchTab('chat')">
+              <i class="ph ph-robot"></i> Usar Assistente IA
+            </button>
+            <button class="btn btn-ghost" style="width:100%;justify-content:center;padding:12px" onclick="appModules.navigation.switchTab('recurring')">
+              <i class="ph ph-repeat"></i> Gerenciar Recorrentes
+            </button>
+            <button class="btn btn-ghost" style="width:100%;justify-content:center;padding:12px" onclick="appModules.navigation.switchTab('reports')">
+              <i class="ph ph-chart-bar"></i> Ver Relatórios
+            </button>
+          </div>
         </div>
-    </div>
+      </div>
 
-    <!-- Confirm Box Overlay -->
-    <div id="confirm-box" class="fixed inset-0 bg-black/40 z-[60] hidden flex items-center justify-center backdrop-blur-sm p-4">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-sm text-center shadow-2xl">
-            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-                <i class="ph ph-warning text-2xl text-red-600"></i>
-            </div>
-            <h3 class="text-lg font-bold text-gray-900 mb-2">Confirmar Exclusão</h3>
-            <p class="text-sm text-gray-500 mb-6">Tem certeza que deseja excluir este registro? Esta ação não pode ser desfeita.</p>
-            <div class="flex justify-center space-x-3">
-                <button onclick="closeConfirmBox()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium transition">Cancelar</button>
-                <button id="btn-confirm-action" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition shadow-sm">Excluir</button>
-            </div>
+      <!-- TRANSACTIONS -->
+      <div id="tab-transactions" class="tab-content">
+        <div class="tx-table-wrap">
+          <table class="tx-table">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Descrição</th>
+                <th>Categoria</th>
+                <th style="text-align:right">Valor</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="transactions-list"></tbody>
+          </table>
+          <div id="empty-transactions" class="empty-state hidden">
+            <i class="ph ph-receipt"></i>
+            <p>Nenhuma transação neste período.</p>
+          </div>
         </div>
-    </div>
+      </div>
 
-    <script>
-        // State Management
-        let appState = {
-            currentDate: new Date(2026, 4, 15), // May 2026 as per context
-            transactions: [],
-            categories: [
-                { id: 'cat_1', name: 'Alimentação', type: 'expense', color: '#f59e0b', icon: 'ph-hamburger' },
-                { id: 'cat_2', name: 'Transporte', type: 'expense', color: '#3b82f6', icon: 'ph-car' },
-                { id: 'cat_3', name: 'Moradia', type: 'expense', color: '#8b5cf6', icon: 'ph-house' },
-                { id: 'cat_4', name: 'Saúde', type: 'expense', color: '#ef4444', icon: 'ph-first-aid' },
-                { id: 'cat_5', name: 'Lazer', type: 'expense', color: '#ec4899', icon: 'ph-popcorn' },
-                { id: 'cat_6', name: 'Salário', type: 'income', color: '#10b981', icon: 'ph-money' },
-                { id: 'cat_7', name: 'Outros', type: 'expense', color: '#6b7280', icon: 'ph-dots-three' }
-            ],
-            budgets: {}, // { categoryId: amount }
-            keywordDict: {
-                // Initial NLP learning dictionary for WhatsApp parsing
-                'gasolina': 'cat_2', 'uber': 'cat_2', 'ônibus': 'cat_2', 'onibus': 'cat_2',
-                'ifood': 'cat_1', 'mercado': 'cat_1', 'padaria': 'cat_1', 'restaurante': 'cat_1',
-                'luz': 'cat_3', 'agua': 'cat_3', 'água': 'cat_3', 'aluguel': 'cat_3',
-                'farmacia': 'cat_4', 'farmácia': 'cat_4', 'medico': 'cat_4',
-                'cinema': 'cat_5', 'show': 'cat_5', 'bar': 'cat_5',
-                'salario': 'cat_6', 'salário': 'cat_6', 'freela': 'cat_6'
+      <!-- CHAT -->
+      <div id="tab-chat" class="tab-content">
+        <div class="chat-wrap">
+          <div class="chat-header">
+            <div class="chat-avatar"><i class="ph ph-robot"></i></div>
+            <div class="chat-header-text">
+              <h3>Assistente Financeiro</h3>
+              <p><span class="online-dot"></span>Diga o gasto, eu registro</p>
+            </div>
+          </div>
+
+          <div id="chat-messages">
+            <div class="msg-bot">
+              <div class="msg-bubble">
+                Olá! Pode me dizer seus gastos em linguagem natural.<br><br>
+                Exemplos:<br>
+                <em>"Mercado 150"</em><br>
+                <em>"Gasolina 80,50"</em><br>
+                <em>"Recebi salário 3000"</em>
+              </div>
+              <div class="msg-time">Agora</div>
+            </div>
+          </div>
+
+          <div class="chat-hint">
+            <span onclick="fillChat('Mercado 150')">Mercado 150</span>
+            <span onclick="fillChat('Gasolina 80')">Gasolina 80</span>
+            <span onclick="fillChat('Uber 25')">Uber 25</span>
+            <span onclick="fillChat('iFood 45')">iFood 45</span>
+            <span onclick="fillChat('Recebi salário 5000')">Salário 5000</span>
+          </div>
+
+          <div class="chat-input-wrap">
+            <input id="chat-input" class="chat-input" placeholder="Ex: Almoço no restaurante 35,00" onkeypress="appModules.chat.handleKeyPress(event)">
+            <button class="chat-send-btn" onclick="appModules.chat.sendMessage()">
+              <i class="ph ph-paper-plane-tilt"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECURRING -->
+      <div id="tab-recurring" class="tab-content">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+          <button class="btn btn-primary" onclick="appModules.recurring.openModal()">
+            <i class="ph ph-plus"></i> Adicionar Recorrente
+          </button>
+        </div>
+        <div class="tx-table-wrap">
+          <div id="recurring-list"></div>
+        </div>
+      </div>
+
+      <!-- REPORTS -->
+      <div id="tab-reports" class="tab-content">
+        <div class="grid-3" style="margin-bottom:20px">
+          <div class="report-card">
+            <div class="report-card-title"><i class="ph ph-trend-down"></i> Total Despesas</div>
+            <div class="report-card-value" id="report-avg-expense">R$ 0,00</div>
+            <div class="report-card-sub">No mês atual</div>
+          </div>
+          <div class="report-card">
+            <div class="report-card-title"><i class="ph ph-scales"></i> Saldo</div>
+            <div class="report-card-value" id="report-forecast">R$ 0,00</div>
+            <div class="report-card-sub" id="report-confidence">Entradas - Saídas</div>
+          </div>
+          <div class="report-card">
+            <div class="report-card-title"><i class="ph ph-chart-line-up"></i> Tendência</div>
+            <div class="report-card-value" id="report-trend" style="font-size:22px">—</div>
+            <div class="report-card-sub">Comparado ao mês anterior</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-title" style="margin-bottom:10px"><i class="ph ph-info"></i> Dica</div>
+          <p style="font-size:13px;color:var(--text-soft);line-height:1.6">
+            Para análises mais detalhadas, exporte seus dados em CSV e use ferramentas como Excel ou Google Sheets para criar seus próprios gráficos e relatórios personalizados.
+          </p>
+          <button class="btn btn-ghost" style="margin-top:14px" onclick="ExportImportModule.exportToCSV(appModules.state.getState().transactions, appModules.state.getState().categories)">
+            <i class="ph ph-download-simple"></i> Exportar CSV
+          </button>
+        </div>
+      </div>
+
+      <!-- BUDGETS -->
+      <div id="tab-budgets" class="tab-content">
+        <div class="tx-table-wrap" style="margin-bottom:16px">
+          <div id="budget-list"></div>
+        </div>
+        <div style="display:flex;justify-content:flex-end">
+          <button class="btn btn-primary" onclick="appModules.budgets.save()">
+            <i class="ph ph-floppy-disk"></i> Salvar Limites
+          </button>
+        </div>
+      </div>
+
+      <!-- CATEGORIES -->
+      <div id="tab-categories" class="tab-content">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+          <button class="btn btn-primary" onclick="appModules.categories.openModal()">
+            <i class="ph ph-plus"></i> Nova Categoria
+          </button>
+        </div>
+        <div id="categories-grid"></div>
+      </div>
+
+    </div><!-- /page-content -->
+  </main>
+</div>
+
+<!-- ============================================================
+     MODALS
+============================================================ -->
+
+<!-- MODAL: Nova Transação -->
+<div id="modal-transaction" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-tx-title">Nova Transação</h2>
+      <button class="modal-close" onclick="appModules.modals.close('modal-transaction')"><i class="ph ph-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="tx-id">
+      <input type="hidden" id="tx-type" value="expense">
+      <input type="hidden" id="tx-source" value="manual">
+
+      <div class="form-group">
+        <label class="form-label">Tipo</label>
+        <div class="type-toggle">
+          <button id="btn-type-expense" class="active-expense" onclick="appModules.transactions.setType('expense')">
+            <i class="ph ph-arrow-down-right"></i> Saída
+          </button>
+          <button id="btn-type-income" onclick="appModules.transactions.setType('income')">
+            <i class="ph ph-arrow-up-right"></i> Entrada
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Descrição</label>
+        <input id="tx-desc" class="form-input" placeholder="Ex: Almoço no trabalho" type="text">
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group">
+          <label class="form-label">Valor (R$)</label>
+          <input id="tx-amount" class="form-input" placeholder="0,00" type="number" min="0.01" step="0.01">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Data</label>
+          <input id="tx-date" class="form-input" type="date">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Categoria</label>
+        <select id="tx-category" class="form-select"></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="appModules.modals.close('modal-transaction')">Cancelar</button>
+      <button class="btn btn-primary" onclick="appModules.transactions.save()">
+        <i class="ph ph-check"></i> Salvar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Recorrente -->
+<div id="modal-recurring" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 class="modal-title">Nova Recorrente</h2>
+      <button class="modal-close" onclick="appModules.modals.close('modal-recurring')"><i class="ph ph-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Descrição</label>
+        <input id="rec-desc" class="form-input" placeholder="Ex: Netflix, Aluguel...">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group">
+          <label class="form-label">Valor</label>
+          <input id="rec-amount" class="form-input" placeholder="0,00" type="number" step="0.01">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Frequência</label>
+          <select id="rec-freq" class="form-select">
+            <option value="weekly">Semanal</option>
+            <option value="biweekly">Quinzenal</option>
+            <option value="monthly" selected>Mensal</option>
+            <option value="quarterly">Trimestral</option>
+            <option value="yearly">Anual</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Categoria</label>
+        <select id="rec-category" class="form-select"></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="appModules.modals.close('modal-recurring')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveRecurring()">
+        <i class="ph ph-check"></i> Salvar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Categoria -->
+<div id="modal-category" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 class="modal-title">Nova Categoria</h2>
+      <button class="modal-close" onclick="appModules.modals.close('modal-category')"><i class="ph ph-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Nome</label>
+        <input id="cat-name" class="form-input" placeholder="Ex: Educação">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group">
+          <label class="form-label">Tipo</label>
+          <select id="cat-type" class="form-select">
+            <option value="expense">Saída</option>
+            <option value="income">Entrada</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cor</label>
+          <input id="cat-color" class="form-input" type="color" value="#6366f1" style="padding:4px;height:40px">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="appModules.modals.close('modal-category')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveCategory()">
+        <i class="ph ph-check"></i> Salvar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="message-box" class="hidden">
+  <div id="toast-icon" class="toast-icon"></div>
+  <div class="toast-content">
+    <h4 id="msg-title"></h4>
+    <p id="msg-text"></p>
+  </div>
+  <button onclick="appModules.ui.closeMessage()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;margin-left:auto;font-size:16px;display:flex;align-items:center">
+    <i class="ph ph-x"></i>
+  </button>
+</div>
+
+<!-- SCRIPTS -->
+<script>
+// ============================================================
+// 1. STATE MANAGER
+// ============================================================
+class StateManager {
+  constructor() {
+    this.state = {
+      currentDate: new Date(2026, 4, 15),
+      user: null,
+      transactions: [],
+      recurringTransactions: [],
+      categories: [
+        { id: 'cat_1', name: 'Alimentação', type: 'expense', color: '#f59e0b', icon: 'ph-hamburger' },
+        { id: 'cat_2', name: 'Transporte', type: 'expense', color: '#3b82f6', icon: 'ph-car' },
+        { id: 'cat_3', name: 'Moradia', type: 'expense', color: '#8b5cf6', icon: 'ph-house' },
+        { id: 'cat_4', name: 'Saúde', type: 'expense', color: '#ef4444', icon: 'ph-first-aid' },
+        { id: 'cat_5', name: 'Lazer', type: 'expense', color: '#ec4899', icon: 'ph-popcorn' },
+        { id: 'cat_6', name: 'Salário', type: 'income', color: '#10b981', icon: 'ph-money' },
+        { id: 'cat_7', name: 'Outros', type: 'expense', color: '#6b7280', icon: 'ph-dots-three' }
+      ],
+      budgets: {},
+      keywordDict: {
+        'gasolina': 'cat_2', 'uber': 'cat_2', 'ônibus': 'cat_2', 'combustível': 'cat_2',
+        'ifood': 'cat_1', 'mercado': 'cat_1', 'padaria': 'cat_1', 'restaurante': 'cat_1', 'supermercado': 'cat_1',
+        'luz': 'cat_3', 'agua': 'cat_3', 'água': 'cat_3', 'aluguel': 'cat_3', 'internet': 'cat_3',
+        'farmacia': 'cat_4', 'farmácia': 'cat_4', 'médico': 'cat_4', 'hospital': 'cat_4',
+        'cinema': 'cat_5', 'show': 'cat_5', 'bar': 'cat_5', 'viagem': 'cat_5',
+        'salario': 'cat_6', 'salário': 'cat_6', 'freela': 'cat_6', 'bônus': 'cat_6'
+      }
+    };
+    this.listeners = [];
+  }
+
+  subscribe(cb) { this.listeners.push(cb); }
+  setState(updates) {
+    this.state = { ...this.state, ...updates };
+    this.listeners.forEach(l => l(this.state));
+    this.saveToStorage();
+  }
+  getState() { return this.state; }
+
+  saveToStorage() {
+    try {
+      const s = { ...this.state, currentDate: this.state.currentDate.toISOString() };
+      localStorage.setItem('rocha_finance_v2', JSON.stringify(s));
+    } catch(e) {}
+  }
+
+  loadFromStorage() {
+    try {
+      const saved = localStorage.getItem('rocha_finance_v2');
+      if (saved) {
+        const data = JSON.parse(saved);
+        if (data.currentDate) data.currentDate = new Date(data.currentDate);
+        this.state = { ...this.state, ...data };
+      }
+    } catch(e) {}
+  }
+}
+
+// ============================================================
+// 2. UTILITIES
+// ============================================================
+const Utils = {
+  generateId: () => '_' + Math.random().toString(36).substr(2, 9),
+  formatCurrency: v => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v),
+  getMonthYearStr: d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`,
+  formatDate: s => { const [y,m,d] = s.split('-'); return `${d}/${m}/${y}`; },
+  getCategory: (id, cats) => cats.find(c => c.id === id) || cats[cats.length-1],
+};
+
+// ============================================================
+// 3. NLP MODULE
+// ============================================================
+const NLPModule = {
+  process(message, state) {
+    const lower = message.toLowerCase();
+    const valueMatch = lower.match(/(\d+(?:[.,]\d{2})?)/);
+    if (!valueMatch) return { success: false, error: "Não consegui identificar o valor. Tente: 'Mercado 150'" };
+
+    let amount = parseFloat(valueMatch[1].replace(',', '.'));
+    if (amount <= 0) return { success: false, error: "O valor precisa ser maior que zero." };
+
+    let desc = message.replace(valueMatch[0], '').trim() || "Lançamento via IA";
+
+    let categoryId = null;
+    const keywords = Object.keys(state.keywordDict).sort((a,b) => b.length - a.length);
+    for (let kw of keywords) {
+      if (lower.includes(kw)) { categoryId = state.keywordDict[kw]; break; }
+    }
+
+    const isIncome = lower.includes('recebi') || lower.includes('salario') || lower.includes('salário') || lower.includes('venda');
+    let type = isIncome ? 'income' : 'expense';
+
+    if (!categoryId) categoryId = isIncome ? state.categories.find(c => c.type === 'income')?.id : 'cat_7';
+    else type = Utils.getCategory(categoryId, state.categories).type;
+
+    return { success: true, description: desc.charAt(0).toUpperCase() + desc.slice(1), amount, categoryId, type };
+  }
+};
+
+// ============================================================
+// 4. EXPORT MODULE
+// ============================================================
+const ExportImportModule = {
+  exportToCSV(transactions, categories) {
+    let csv = 'Data,Descrição,Categoria,Tipo,Valor\n';
+    transactions.forEach(tx => {
+      const cat = Utils.getCategory(tx.categoryId, categories);
+      const date = Utils.formatDate(tx.date);
+      const value = tx.type === 'income' ? tx.amount : -tx.amount;
+      csv += `${date},"${tx.description}","${cat.name}","${tx.type}","${value.toFixed(2)}"\n`;
+    });
+    const a = document.createElement('a');
+    a.href = `data:text/csv;charset=utf-8,${encodeURIComponent(csv)}`;
+    a.download = 'financeiro.csv';
+    a.click();
+  }
+};
+
+// ============================================================
+// 5. RECURRING MODULE
+// ============================================================
+const RecurringModule = {
+  FREQUENCY: { WEEKLY:'weekly', BIWEEKLY:'biweekly', MONTHLY:'monthly', QUARTERLY:'quarterly', YEARLY:'yearly' }
+};
+
+// ============================================================
+// 6. REPORTS MODULE
+// ============================================================
+const ReportsModule = {
+  generateSummary(transactions, categories, dateStr) {
+    const d = dateStr ? new Date(dateStr) : new Date();
+    const prefix = Utils.getMonthYearStr(d);
+    const txs = transactions.filter(t => t.date.startsWith(prefix));
+    let income = 0, expense = 0;
+    txs.forEach(tx => { if (tx.type === 'income') income += tx.amount; else expense += tx.amount; });
+    return { income, expense, balance: income - expense, transactionCount: txs.length };
+  }
+};
+
+// ============================================================
+// 7. APP MODULES
+// ============================================================
+const appModules = {
+  state: new StateManager(),
+
+  navigation: {
+    switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      const tabEl = document.getElementById(`tab-${tabId}`);
+      if (tabEl) tabEl.classList.add('active');
+
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = document.getElementById(`nav-${tabId}`);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const titles = {
+        'dashboard':'Visão Geral','transactions':'Histórico','chat':'Assistente IA',
+        'recurring':'Recorrentes','reports':'Relatórios','budgets':'Limites','categories':'Categorias'
+      };
+      const titleEl = document.getElementById('current-view-title');
+      if (titleEl) titleEl.innerText = titles[tabId] || 'Rocha Finance';
+
+      if (tabId === 'dashboard') this.renderDashboard();
+      if (tabId === 'transactions') this.renderTransactions();
+      if (tabId === 'recurring') this.renderRecurring();
+      if (tabId === 'reports') this.renderReports();
+      if (tabId === 'budgets') this.renderBudgets();
+      if (tabId === 'categories') this.renderCategories();
+    },
+
+    changeMonth(delta) {
+      const state = appModules.state.getState();
+      const d = new Date(state.currentDate);
+      d.setMonth(d.getMonth() + delta);
+      appModules.state.setState({ currentDate: d });
+      this.updateMonthDisplay();
+      this.renderDashboard();
+      this.renderTransactions();
+    },
+
+    updateMonthDisplay() {
+      const state = appModules.state.getState();
+      const months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+      const el = document.getElementById('current-month-display');
+      if (el) el.innerText = `${months[state.currentDate.getMonth()]} ${state.currentDate.getFullYear()}`;
+    },
+
+    renderDashboard() {
+      const state = appModules.state.getState();
+      const prefix = Utils.getMonthYearStr(state.currentDate);
+      const txs = state.transactions.filter(t => t.date.startsWith(prefix));
+
+      let income = 0, expense = 0;
+      txs.forEach(t => { if (t.type === 'income') income += t.amount; else expense += t.amount; });
+      const balance = income - expense;
+
+      const cb = document.getElementById('card-balance');
+      if (cb) {
+        cb.innerText = Utils.formatCurrency(balance);
+        cb.className = 'balance-hero-value' + (balance < 0 ? ' negative' : '');
+      }
+      const ci = document.getElementById('card-income');
+      const ce = document.getElementById('card-expense');
+      if (ci) ci.innerText = Utils.formatCurrency(income);
+      if (ce) ce.innerText = Utils.formatCurrency(expense);
+
+      const expenses = txs.filter(t => t.type === 'expense');
+      const catTotals = {};
+      expenses.forEach(tx => { catTotals[tx.categoryId] = (catTotals[tx.categoryId] || 0) + tx.amount; });
+
+      const labels = [], data = [], bgColors = [];
+      Object.keys(catTotals).forEach(catId => {
+        const cat = Utils.getCategory(catId, state.categories);
+        labels.push(cat.name);
+        data.push(catTotals[catId]);
+        bgColors.push(cat.color);
+      });
+      this.renderChart(labels, data, bgColors);
+    },
+
+    renderChart(labels, data, bgColors) {
+      const canvas = document.getElementById('expensesChart');
+      const noData = document.getElementById('no-chart-data');
+      if (!canvas) return;
+
+      if (data.length === 0) {
+        canvas.style.display = 'none';
+        if (noData) noData.classList.remove('hidden');
+        return;
+      }
+
+      canvas.style.display = 'block';
+      if (noData) noData.classList.add('hidden');
+
+      if (window.expensesChartInstance) window.expensesChartInstance.destroy();
+
+      const ctx = canvas.getContext('2d');
+      window.expensesChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: { labels, datasets: [{ data, backgroundColor: bgColors, borderWidth: 2, borderColor: '#181817' }] },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: {
+                usePointStyle: true,
+                font: { family: 'DM Sans', size: 11 },
+                color: '#a8a49e',
+                boxWidth: 8,
+                padding: 12
+              }
             }
-        };
-
-        // Chart Instance
-        let expensesChartInstance = null;
-
-        // Utilities
-        const generateId = () => '_' + Math.random().toString(36).substr(2, 9);
-        
-        const formatCurrency = (value) => {
-            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
-        };
-
-        const getMonthYearStr = (date) => {
-            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-        };
-
-        const getCategory = (id) => appState.categories.find(c => c.id === id) || appState.categories[appState.categories.length-1];
-
-        // Custom Message Box
-        function showMessage(title, text, type = 'success') {
-            const box = document.getElementById('message-box');
-            const icon = document.getElementById('msg-icon');
-            document.getElementById('msg-title').innerText = title;
-            document.getElementById('msg-text').innerText = text;
-            
-            if (type === 'error') {
-                icon.className = 'mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4';
-                icon.innerHTML = '<i class="ph ph-x text-2xl text-red-600"></i>';
-            } else {
-                icon.className = 'mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-emerald-100 mb-4';
-                icon.innerHTML = '<i class="ph ph-check text-2xl text-emerald-600"></i>';
-            }
-            
-            box.classList.remove('hidden');
+          },
+          cutout: '72%'
         }
-        function closeMessageBox() {
-            document.getElementById('message-box').classList.add('hidden');
-        }
+      });
+    },
 
-        // Custom Confirm Box
-        let confirmActionCb = null;
-        function showConfirm(actionCb) {
-            confirmActionCb = actionCb;
-            document.getElementById('confirm-box').classList.remove('hidden');
-        }
-        function closeConfirmBox() {
-            document.getElementById('confirm-box').classList.add('hidden');
-            confirmActionCb = null;
-        }
-        document.getElementById('btn-confirm-action').addEventListener('click', () => {
-            if(confirmActionCb) confirmActionCb();
-            closeConfirmBox();
+    renderTransactions() {
+      const state = appModules.state.getState();
+      const prefix = Utils.getMonthYearStr(state.currentDate);
+      const txs = state.transactions
+        .filter(t => t.date.startsWith(prefix))
+        .sort((a,b) => new Date(b.date) - new Date(a.date));
+
+      const list = document.getElementById('transactions-list');
+      const empty = document.getElementById('empty-transactions');
+      if (!list) return;
+
+      list.innerHTML = '';
+
+      if (txs.length === 0) {
+        if (empty) empty.classList.remove('hidden');
+      } else {
+        if (empty) empty.classList.add('hidden');
+        txs.forEach(tx => {
+          const cat = Utils.getCategory(tx.categoryId, state.categories);
+          const isInc = tx.type === 'income';
+          const aiIcon = tx.source === 'chat' ? `<i class="ph-fill ph-robot" style="color:var(--accent);font-size:11px;margin-left:4px"></i>` : '';
+          list.innerHTML += `
+            <tr>
+              <td class="tx-date">${Utils.formatDate(tx.date)}</td>
+              <td class="tx-desc">${tx.description}${aiIcon}</td>
+              <td>
+                <span class="cat-badge" style="background:${cat.color}18;color:${cat.color}">
+                  <i class="ph ${cat.icon}" style="font-size:12px"></i>${cat.name}
+                </span>
+              </td>
+              <td class="tx-amount ${isInc ? 'income' : 'expense'}">
+                ${isInc ? '+' : '-'} ${Utils.formatCurrency(tx.amount)}
+              </td>
+              <td class="tx-actions">
+                <button class="icon-btn" onclick="appModules.transactions.delete('${tx.id}')">
+                  <i class="ph ph-trash"></i>
+                </button>
+              </td>
+            </tr>`;
         });
+      }
+    },
 
-        function initApp() {
-            // Load dummy data just to not look empty initially if needed, but per prompt, let's start fresh or use local storage
-            const stored = localStorage.getItem('rocha_finance_data');
-            if (stored) {
-                try {
-                    let parsed = JSON.parse(stored);
-                    appState.transactions = parsed.transactions || [];
-                    if(parsed.categories && parsed.categories.length > 0) appState.categories = parsed.categories;
-                    appState.budgets = parsed.budgets || {};
-                    appState.keywordDict = parsed.keywordDict || appState.keywordDict;
-                } catch(e) {}
-            }
+    renderRecurring() {
+      const state = appModules.state.getState();
+      const list = document.getElementById('recurring-list');
+      if (!list) return;
+      list.innerHTML = '';
 
-            updateView();
-            populateCategorySelects();
-            renderCategoriesTab();
-            
-            // Set initial chat greeting time
-            document.querySelector('#chat-messages span').innerText = new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+      if (state.recurringTransactions.length === 0) {
+        list.innerHTML = '<div class="empty-state"><i class="ph ph-repeat"></i><p>Nenhuma transação recorrente</p></div>';
+        return;
+      }
+
+      state.recurringTransactions.forEach(rec => {
+        const cat = Utils.getCategory(rec.categoryId, state.categories);
+        const isInc = rec.type === 'income';
+        list.innerHTML += `
+          <div class="rec-item">
+            <div class="rec-info">
+              <h4>${rec.description}</h4>
+              <p><i class="ph ph-repeat"></i> ${rec.frequency} &mdash; Próximo: ${Utils.formatDate(rec.nextDate)}</p>
+            </div>
+            <div style="text-align:right">
+              <div class="rec-amount ${isInc ? 'income' : 'expense'}">
+                ${isInc ? '+' : '-'}${Utils.formatCurrency(rec.amount)}
+              </div>
+              <div style="font-size:11px;color:${cat.color};margin-top:2px">${cat.name}</div>
+            </div>
+          </div>`;
+      });
+    },
+
+    renderReports() {
+      const state = appModules.state.getState();
+      const summary = ReportsModule.generateSummary(state.transactions, state.categories, state.currentDate.toISOString());
+      const e = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
+      e('report-avg-expense', Utils.formatCurrency(summary.expense));
+      e('report-forecast', Utils.formatCurrency(summary.balance));
+      e('report-trend', summary.balance > 0 ? '↑ Positivo' : summary.balance < 0 ? '↓ Negativo' : '→ Neutro');
+    },
+
+    renderBudgets() {
+      const state = appModules.state.getState();
+      const list = document.getElementById('budget-list');
+      if (!list) return;
+      list.innerHTML = '';
+      state.categories.filter(c => c.type === 'expense').forEach(cat => {
+        const current = state.budgets[cat.id] || 0;
+        list.innerHTML += `
+          <div class="budget-item">
+            <div class="budget-cat-icon" style="background:${cat.color}18;color:${cat.color}">
+              <i class="ph ${cat.icon}"></i>
+            </div>
+            <span class="budget-cat-name">${cat.name}</span>
+            <div class="budget-input-wrap">
+              <span>R$</span>
+              <input type="number" step="10" value="${current}" data-category="${cat.id}" class="budget-input">
+            </div>
+          </div>`;
+      });
+    },
+
+    renderCategories() {
+      const state = appModules.state.getState();
+      const grid = document.getElementById('categories-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      state.categories.forEach(cat => {
+        grid.innerHTML += `
+          <div class="cat-card">
+            <div class="cat-card-icon" style="background:${cat.color}20;color:${cat.color}">
+              <i class="ph ${cat.icon}"></i>
+            </div>
+            <div>
+              <div class="cat-card-name">${cat.name}</div>
+              <div class="cat-card-type">${cat.type === 'expense' ? 'Saída' : 'Entrada'}</div>
+            </div>
+          </div>`;
+      });
+    }
+  },
+
+  transactions: {
+    openModal() {
+      document.getElementById('tx-id').value = '';
+      document.getElementById('tx-source').value = 'manual';
+      document.getElementById('modal-tx-title').innerText = 'Nova Transação';
+      const state = appModules.state.getState();
+      const todayStr = new Date().toISOString().split('T')[0];
+      document.getElementById('tx-date').value = todayStr;
+      this.setType('expense');
+      document.getElementById('tx-desc').value = '';
+      document.getElementById('tx-amount').value = '';
+      appModules.modals.open('modal-transaction');
+    },
+
+    setType(type) {
+      document.getElementById('tx-type').value = type;
+      const btnExp = document.getElementById('btn-type-expense');
+      const btnInc = document.getElementById('btn-type-income');
+      btnExp.className = type === 'expense' ? 'active-expense' : '';
+      btnInc.className = type === 'income' ? 'active-income' : '';
+      this.populateCategorySelect(type);
+    },
+
+    populateCategorySelect(typeFilter = null) {
+      const state = appModules.state.getState();
+      const select = document.getElementById('tx-category');
+      if (!select) return;
+      select.innerHTML = '';
+      state.categories.forEach(cat => {
+        if (typeFilter && cat.type !== typeFilter && cat.id !== 'cat_7') return;
+        select.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
+      });
+    },
+
+    save() {
+      const id = document.getElementById('tx-id').value;
+      const desc = document.getElementById('tx-desc').value.trim();
+      const amount = parseFloat(document.getElementById('tx-amount').value);
+      const date = document.getElementById('tx-date').value;
+      const categoryId = document.getElementById('tx-category').value;
+      const type = document.getElementById('tx-type').value;
+      const source = document.getElementById('tx-source').value;
+
+      if (!desc || !amount || !date || !categoryId) {
+        appModules.ui.showMessage('Atenção', 'Preencha todos os campos!', 'error');
+        return;
+      }
+
+      const state = appModules.state.getState();
+      if (id) {
+        const idx = state.transactions.findIndex(t => t.id === id);
+        if (idx > -1) state.transactions[idx] = { ...state.transactions[idx], description: desc, amount, date, categoryId, type };
+      } else {
+        state.transactions.push({ id: Utils.generateId(), description: desc, amount, date, categoryId, type, source, createdAt: new Date().toISOString() });
+      }
+
+      appModules.state.setState(state);
+      appModules.modals.close('modal-transaction');
+      appModules.ui.showMessage('Sucesso', 'Transação salva!');
+      appModules.navigation.renderDashboard();
+      appModules.navigation.renderTransactions();
+    },
+
+    delete(id) {
+      if (confirm('Tem certeza que deseja excluir?')) {
+        const state = appModules.state.getState();
+        state.transactions = state.transactions.filter(t => t.id !== id);
+        appModules.state.setState(state);
+        appModules.ui.showMessage('Sucesso', 'Transação removida!');
+        appModules.navigation.renderTransactions();
+        appModules.navigation.renderDashboard();
+      }
+    }
+  },
+
+  chat: {
+    handleKeyPress(e) { if (e.key === 'Enter') this.sendMessage(); },
+
+    sendMessage() {
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      this.appendMessage(text, true);
+      input.value = '';
+
+      setTimeout(() => {
+        const state = appModules.state.getState();
+        const result = NLPModule.process(text, state);
+
+        if (result.success) {
+          const todayStr = new Date().toISOString().split('T')[0];
+          state.transactions.push({
+            id: Utils.generateId(),
+            description: result.description,
+            amount: result.amount,
+            date: todayStr,
+            categoryId: result.categoryId,
+            type: result.type,
+            source: 'chat',
+            createdAt: new Date().toISOString()
+          });
+          appModules.state.setState(state);
+
+          const cat = Utils.getCategory(result.categoryId, state.categories);
+          this.appendMessage(`✅ <strong>${result.description}</strong><br>${Utils.formatCurrency(result.amount)} &mdash; ${cat.name}<br><small style="color:var(--text-muted)">Errou a categoria? Edite no histórico.</small>`, false);
+        } else {
+          this.appendMessage(`❌ ${result.error}`, false);
         }
+      }, 500);
+    },
 
-        function saveData() {
-            localStorage.setItem('rocha_finance_data', JSON.stringify({
-                transactions: appState.transactions,
-                categories: appState.categories,
-                budgets: appState.budgets,
-                keywordDict: appState.keywordDict
-            }));
-            updateView();
-        }
+    appendMessage(text, isUser) {
+      const chatArea = document.getElementById('chat-messages');
+      if (!chatArea) return;
+      const time = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      chatArea.innerHTML += `
+        <div class="${isUser ? 'msg-user' : 'msg-bot'}">
+          <div class="msg-bubble">${text}</div>
+          <div class="msg-time">${time}</div>
+        </div>`;
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
+  },
 
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById(`tab-${tabId}`).classList.add('active');
-            
-            // Update Nav visual
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('text-emerald-600', 'bg-emerald-50');
-                btn.classList.add('text-gray-500');
-            });
-            const activeBtn = document.getElementById(`nav-${tabId}`);
-            activeBtn.classList.remove('text-gray-500');
-            activeBtn.classList.add('text-emerald-600', 'bg-emerald-50');
+  recurring: {
+    openModal() {
+      const state = appModules.state.getState();
+      const select = document.getElementById('rec-category');
+      if (select) {
+        select.innerHTML = '';
+        state.categories.forEach(cat => {
+          select.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
+        });
+      }
+      appModules.modals.open('modal-recurring');
+    }
+  },
 
-            // Update Title
-            const titles = {
-                'dashboard': 'Visão Geral',
-                'transactions': 'Histórico',
-                'chat': 'Assistente Inteligente',
-                'budgets': 'Metas e Limites',
-                'categories': 'Categorias'
-            };
-            document.getElementById('current-view-title').innerText = titles[tabId];
+  budgets: {
+    save() {
+      const state = appModules.state.getState();
+      document.querySelectorAll('[data-category]').forEach(input => {
+        state.budgets[input.dataset.category] = parseFloat(input.value) || 0;
+      });
+      appModules.state.setState(state);
+      appModules.ui.showMessage('Sucesso', 'Limites salvos!');
+    }
+  },
 
-            if(tabId === 'dashboard') renderDashboard();
-            if(tabId === 'transactions') renderTransactions();
-            if(tabId === 'budgets') renderBudgets();
-            if(tabId === 'chat') {
-                // Scroll to bottom
-                const chatArea = document.getElementById('chat-messages');
-                chatArea.scrollTop = chatArea.scrollHeight;
-            }
-        }
+  categories: {
+    openModal() { appModules.modals.open('modal-category'); }
+  },
 
-        function changeMonth(delta) {
-            appState.currentDate.setMonth(appState.currentDate.getMonth() + delta);
-            updateView();
-        }
+  modals: {
+    open(id) { const m = document.getElementById(id); if (m) m.classList.remove('hidden'); },
+    close(id) { const m = document.getElementById(id); if (m) m.classList.add('hidden'); }
+  },
 
-        function updateView() {
-            // Update Header Month
-            const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-            document.getElementById('current-month-display').innerText = `${monthNames[appState.currentDate.getMonth()]} ${appState.currentDate.getFullYear()}`;
-            
-            renderSummary();
-            
-            // Re-render active tab content
-            const activeTab = document.querySelector('.tab-content.active').id.replace('tab-', '');
-            if(activeTab === 'dashboard') renderDashboard();
-            if(activeTab === 'transactions') renderTransactions();
-            if(activeTab === 'budgets') renderBudgets();
-        }
+  ui: {
+    showMessage(title, text, type = 'success') {
+      const box = document.getElementById('message-box');
+      const icon = document.getElementById('toast-icon');
+      if (!box) return;
+      document.getElementById('msg-title').innerText = title;
+      document.getElementById('msg-text').innerText = text;
+      if (icon) {
+        icon.style.background = type === 'error' ? 'var(--red-muted)' : 'var(--green-muted)';
+        icon.style.color = type === 'error' ? 'var(--red)' : 'var(--green)';
+        icon.innerHTML = type === 'error' ? '<i class="ph ph-x-circle"></i>' : '<i class="ph ph-check-circle"></i>';
+      }
+      box.classList.remove('hidden');
+      clearTimeout(this._toastTimer);
+      this._toastTimer = setTimeout(() => box.classList.add('hidden'), 3000);
+    },
+    closeMessage() {
+      const box = document.getElementById('message-box');
+      if (box) box.classList.add('hidden');
+    }
+  },
 
-        function getFilteredTransactions() {
-            const currentPrefix = getMonthYearStr(appState.currentDate);
-            return appState.transactions.filter(tx => tx.date.startsWith(currentPrefix));
-        }
+  auth: {
+    logout() {
+      if (confirm('Deseja sair?')) { localStorage.clear(); location.reload(); }
+    }
+  }
+};
 
-        function renderSummary() {
-            const txs = getFilteredTransactions();
-            let income = 0;
-            let expense = 0;
+// ---- Helpers ----
+function fillChat(text) {
+  const input = document.getElementById('chat-input');
+  if (input) { input.value = text; input.focus(); }
+}
 
-            txs.forEach(tx => {
-                if(tx.type === 'income') income += tx.amount;
-                else expense += tx.amount;
-            });
+function saveRecurring() {
+  const desc = document.getElementById('rec-desc').value.trim();
+  const amount = parseFloat(document.getElementById('rec-amount').value);
+  const freq = document.getElementById('rec-freq').value;
+  const categoryId = document.getElementById('rec-category').value;
 
-            document.getElementById('card-income').innerText = formatCurrency(income);
-            document.getElementById('card-expense').innerText = formatCurrency(expense);
-            
-            const balance = income - expense;
-            const balanceEl = document.getElementById('card-balance');
-            balanceEl.innerText = formatCurrency(balance);
-            if (balance < 0) {
-                balanceEl.classList.remove('text-gray-800');
-                balanceEl.classList.add('text-red-600');
-            } else {
-                balanceEl.classList.add('text-gray-800');
-                balanceEl.classList.remove('text-red-600');
-            }
-        }
+  if (!desc || !amount) {
+    appModules.ui.showMessage('Atenção', 'Preencha todos os campos!', 'error');
+    return;
+  }
 
-        function renderDashboard() {
-            const txs = getFilteredTransactions();
-            const expenses = txs.filter(t => t.type === 'expense');
-            
-            // 1. Chart Data
-            const catTotals = {};
-            expenses.forEach(tx => {
-                catTotals[tx.categoryId] = (catTotals[tx.categoryId] || 0) + tx.amount;
-            });
+  const state = appModules.state.getState();
+  const cat = Utils.getCategory(categoryId, state.categories);
+  const today = new Date().toISOString().split('T')[0];
 
-            const labels = [];
-            const data = [];
-            const bgColors = [];
+  state.recurringTransactions.push({
+    id: Utils.generateId(),
+    description: desc,
+    amount,
+    frequency: freq,
+    categoryId,
+    type: cat.type,
+    startDate: today,
+    nextDate: today,
+    active: true
+  });
 
-            Object.keys(catTotals).forEach(catId => {
-                const cat = getCategory(catId);
-                labels.push(cat.name);
-                data.push(catTotals[catId]);
-                bgColors.push(cat.color || '#9ca3af');
-            });
+  appModules.state.setState(state);
+  appModules.modals.close('modal-recurring');
+  appModules.ui.showMessage('Sucesso', 'Recorrente adicionada!');
+  appModules.navigation.renderRecurring();
+}
 
-            const canvas = document.getElementById('expensesChart');
-            const noDataLabel = document.getElementById('no-chart-data');
-            
-            if (data.length === 0) {
-                canvas.style.display = 'none';
-                noDataLabel.classList.remove('hidden');
-            } else {
-                canvas.style.display = 'block';
-                noDataLabel.classList.add('hidden');
-                
-                if (expensesChartInstance) {
-                    expensesChartInstance.destroy();
-                }
-                
-                expensesChartInstance = new Chart(canvas, {
-                    type: 'doughnut',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            data: data,
-                            backgroundColor: bgColors,
-                            borderWidth: 0,
-                            hoverOffset: 4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { position: 'right', labels: { usePointStyle: true, font: { family: 'Inter' } } },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return ' ' + formatCurrency(context.raw);
-                                    }
-                                }
-                            }
-                        },
-                        cutout: '70%'
-                    }
-                });
-            }
+function saveCategory() {
+  const name = document.getElementById('cat-name').value.trim();
+  const type = document.getElementById('cat-type').value;
+  const color = document.getElementById('cat-color').value;
 
-            // 2. Budgets Dashboard
-            const dashBudgets = document.getElementById('dashboard-budgets');
-            dashBudgets.innerHTML = '';
-            
-            let hasBudgets = false;
-            Object.keys(appState.budgets).forEach(catId => {
-                const limit = appState.budgets[catId];
-                if(limit <= 0) return;
-                hasBudgets = true;
-                
-                const cat = getCategory(catId);
-                const spent = catTotals[catId] || 0;
-                const percent = Math.min(100, (spent / limit) * 100);
-                
-                let colorClass = 'bg-emerald-500';
-                if (percent > 85) colorClass = 'bg-red-500';
-                else if (percent > 60) colorClass = 'bg-yellow-500';
+  if (!name) {
+    appModules.ui.showMessage('Atenção', 'Informe o nome!', 'error');
+    return;
+  }
 
-                dashBudgets.innerHTML += `
-                    <div>
-                        <div class="flex justify-between text-sm mb-1">
-                            <span class="font-medium text-gray-700 flex items-center"><i class="ph ${cat.icon} mr-1" style="color: ${cat.color}"></i> ${cat.name}</span>
-                            <span class="text-gray-500">${formatCurrency(spent)} / ${formatCurrency(limit)}</span>
-                        </div>
-                        <div class="w-full bg-gray-100 rounded-full h-2">
-                            <div class="${colorClass} h-2 rounded-full transition-all duration-500" style="width: ${percent}%"></div>
-                        </div>
-                    </div>
-                `;
-            });
+  const state = appModules.state.getState();
+  state.categories.push({
+    id: Utils.generateId(),
+    name,
+    type,
+    color,
+    icon: 'ph-tag'
+  });
 
-            if(!hasBudgets) {
-                dashBudgets.innerHTML = '<p class="text-sm text-gray-400 italic">Nenhum limite de gastos definido. Vá na aba "Limites".</p>';
-            }
-        }
+  appModules.state.setState(state);
+  appModules.modals.close('modal-category');
+  appModules.ui.showMessage('Sucesso', 'Categoria criada!');
+  appModules.navigation.renderCategories();
+}
 
-        function renderTransactions() {
-            const list = document.getElementById('transactions-list');
-            const empty = document.getElementById('empty-transactions');
-            const txs = getFilteredTransactions();
-            
-            // Sort by date descending
-            txs.sort((a,b) => new Date(b.date) - new Date(a.date));
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.add('hidden');
+  });
+});
 
-            list.innerHTML = '';
-            
-            if (txs.length === 0) {
-                empty.classList.remove('hidden');
-            } else {
-                empty.classList.add('hidden');
-                txs.forEach(tx => {
-                    const cat = getCategory(tx.categoryId);
-                    const isInc = tx.type === 'income';
-                    const dateArr = tx.date.split('-'); // YYYY-MM-DD
-                    const dateFmt = `${dateArr[2]}/${dateArr[1]}`;
-                    
-                    const installmentBadge = tx.installmentInfo ? `<span class="ml-2 text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">${tx.installmentInfo}</span>` : '';
-                    const nlpBadge = tx.source === 'chat' ? `<i class="ph-fill ph-robot text-emerald-500 ml-1 text-xs" title="Adicionado via Chat"></i>` : '';
-
-                    list.innerHTML += `
-                        <tr class="hover:bg-gray-50 transition group">
-                            <td class="p-4 text-sm text-gray-600 whitespace-nowrap">${dateFmt}</td>
-                            <td class="p-4 text-sm text-gray-800 font-medium">
-                                <div class="flex items-center">
-                                    ${tx.description} ${installmentBadge} ${nlpBadge}
-                                </div>
-                            </td>
-                            <td class="p-4 text-sm">
-                                <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium" style="background-color: ${cat.color}15; color: ${cat.color}">
-                                    <i class="ph ${cat.icon} mr-1"></i> ${cat.name}
-                                </span>
-                            </td>
-                            <td class="p-4 text-sm font-semibold text-right ${isInc ? 'text-emerald-600' : 'text-gray-800'}">
-                                ${isInc ? '+' : '-'} ${formatCurrency(tx.amount)}
-                            </td>
-                            <td class="p-4 text-center">
-                                <div class="flex items-center justify-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button onclick="editTransaction('${tx.id}')" class="text-gray-400 hover:text-blue-500" title="Editar"><i class="ph ph-pencil-simple"></i></button>
-                                    <button onclick="deleteTransaction('${tx.id}')" class="text-gray-400 hover:text-red-500" title="Excluir"><i class="ph ph-trash"></i></button>
-                                </div>
-                                <div class="md:hidden flex items-center justify-center space-x-2">
-                                    <button onclick="editTransaction('${tx.id}')" class="text-blue-500 p-2"><i class="ph ph-pencil-simple"></i></button>
-                                    <button onclick="deleteTransaction('${tx.id}')" class="text-red-500 p-2"><i class="ph ph-trash"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                });
-            }
-        }
-
-        function openTransactionModal() {
-            document.getElementById('form-transaction').reset();
-            document.getElementById('tx-id').value = '';
-            document.getElementById('tx-source').value = 'manual';
-            document.getElementById('modal-tx-title').innerText = 'Nova Transação';
-            
-            // Default date to today but inside current view month if possible
-            const viewMonth = getMonthYearStr(appState.currentDate);
-            const todayStr = new Date().toISOString().split('T')[0];
-            document.getElementById('tx-date').value = todayStr.startsWith(viewMonth.substring(0,4)) ? todayStr : `${viewMonth}-01`;
-            
-            setTxType('expense');
-            document.getElementById('installments-container').classList.remove('hidden');
-            document.getElementById('installments-opts').classList.add('hidden');
-            document.getElementById('modal-transaction').classList.remove('hidden');
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
-        }
-
-        function toggleInstallments() {
-            const isChecked = document.getElementById('tx-is-installment').checked;
-            const opts = document.getElementById('installments-opts');
-            if(isChecked) opts.classList.remove('hidden');
-            else opts.classList.add('hidden');
-        }
-
-        function setTxType(type) {
-            document.getElementById('tx-type').value = type;
-            const btnExp = document.getElementById('btn-type-expense');
-            const btnInc = document.getElementById('btn-type-income');
-            
-            if(type === 'expense') {
-                btnExp.className = 'flex-1 py-2 text-sm font-medium rounded-md bg-white shadow-sm text-red-600 transition';
-                btnInc.className = 'flex-1 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-emerald-600 transition';
-            } else {
-                btnInc.className = 'flex-1 py-2 text-sm font-medium rounded-md bg-white shadow-sm text-emerald-600 transition';
-                btnExp.className = 'flex-1 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-red-600 transition';
-            }
-
-            // Filter categories based on type
-            populateCategorySelects(type);
-        }
-
-        function populateCategorySelects(typeFilter = null) {
-            const select = document.getElementById('tx-category');
-            select.innerHTML = '';
-            
-            appState.categories.forEach(cat => {
-                if(typeFilter && cat.type !== typeFilter && cat.id !== 'cat_7') return; // Show others always as fallback
-                select.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
-            });
-        }
-
-        function addMonthsToDateStr(dateStr, monthsToAdd) {
-            let [y, m, d] = dateStr.split('-');
-            let date = new Date(y, parseInt(m)-1, d);
-            date.setMonth(date.getMonth() + monthsToAdd);
-            return date.toISOString().split('T')[0];
-        }
-
-        function saveTransaction() {
-            const id = document.getElementById('tx-id').value;
-            const desc = document.getElementById('tx-desc').value;
-            let amount = parseFloat(document.getElementById('tx-amount').value);
-            const date = document.getElementById('tx-date').value;
-            const categoryId = document.getElementById('tx-category').value;
-            const type = document.getElementById('tx-type').value;
-            const source = document.getElementById('tx-source').value;
-
-            if(!desc || !amount || !date || !categoryId) {
-                showMessage('Atenção', 'Preencha todos os campos obrigatórios.', 'error');
-                return;
-            }
-
-            const isInstallment = document.getElementById('tx-is-installment').checked;
-
-            if (id) {
-                // Edit existing
-                const index = appState.transactions.findIndex(t => t.id === id);
-                if(index > -1) {
-                    let oldTx = appState.transactions[index];
-                    
-                    // NLP LEARNING CORE FEATURE:
-                    // If this transaction was originally created by the chat bot,
-                    // and the user is changing its category, the bot learns!
-                    if (oldTx.source === 'chat' && oldTx.categoryId !== categoryId) {
-                        learnFromCorrection(oldTx.description, categoryId, type);
-                    }
-
-                    appState.transactions[index] = {
-                        ...oldTx, description: desc, amount, date, categoryId, type
-                    };
-                }
-            } else {
-                // Add new
-                if (isInstallment) {
-                    const parts = parseInt(document.getElementById('tx-installments').value);
-                    if(parts > 1) {
-                        const installmentAmount = amount / parts;
-                        const groupId = generateId();
-                        for(let i=0; i<parts; i++) {
-                            const instDate = addMonthsToDateStr(date, i);
-                            appState.transactions.push({
-                                id: generateId(),
-                                description: desc,
-                                amount: installmentAmount,
-                                date: instDate,
-                                categoryId,
-                                type,
-                                source,
-                                installmentInfo: `${i+1}/${parts}`,
-                                groupId
-                            });
-                        }
-                    } else {
-                        appState.transactions.push({ id: generateId(), description: desc, amount, date, categoryId, type, source });
-                    }
-                } else {
-                    appState.transactions.push({ id: generateId(), description: desc, amount, date, categoryId, type, source });
-                }
-            }
-
-            saveData();
-            closeModal('modal-transaction');
-            showMessage('Sucesso', 'Transação salva com sucesso.');
-        }
-
-        function editTransaction(id) {
-            const tx = appState.transactions.find(t => t.id === id);
-            if(!tx) return;
-
-            document.getElementById('tx-id').value = tx.id;
-            document.getElementById('tx-source').value = tx.source || 'manual';
-            document.getElementById('tx-desc').value = tx.description;
-            document.getElementById('tx-amount').value = tx.amount;
-            document.getElementById('tx-date').value = tx.date;
-            
-            setTxType(tx.type);
-            document.getElementById('tx-category').value = tx.categoryId;
-            
-            document.getElementById('modal-tx-title').innerText = 'Editar Transação';
-            document.getElementById('installments-container').classList.add('hidden'); // disable converting to installment on edit
-            document.getElementById('modal-transaction').classList.remove('hidden');
-        }
-
-        function deleteTransaction(id) {
-            showConfirm(() => {
-                appState.transactions = appState.transactions.filter(t => t.id !== id);
-                saveData();
-            });
-        }
-
-        function renderCategoriesTab() {
-            const grid = document.getElementById('categories-grid');
-            grid.innerHTML = '';
-            appState.categories.forEach(cat => {
-                grid.innerHTML += `
-                    <div class="bg-white p-4 rounded-xl border border-gray-100 flex items-center justify-between shadow-sm">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 rounded-full flex items-center justify-center text-xl mr-3" style="background-color: ${cat.color}20; color: ${cat.color}">
-                                <i class="ph ${cat.icon}"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-medium text-gray-800">${cat.name}</h4>
-                                <p class="text-xs text-gray-500">${cat.type === 'expense' ? 'Saída' : 'Entrada'}</p>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function openCategoryModal() {
-            document.getElementById('cat-name').value = '';
-            document.getElementById('modal-category').classList.remove('hidden');
-        }
-
-        function saveCategory() {
-            const name = document.getElementById('cat-name').value;
-            const type = document.getElementById('cat-type').value;
-            if(!name) return;
-
-            const icons = ['ph-bag', 'ph-airplane', 'ph-book', 'ph-game-controller', 'ph-t-shirt', 'ph-wrench'];
-            const colors = ['#f43f5e', '#a855f7', '#0ea5e9', '#84cc16', '#f97316', '#64748b'];
-            
-            const rnd = Math.floor(Math.random() * icons.length);
-
-            appState.categories.push({
-                id: generateId(),
-                name,
-                type,
-                icon: icons[rnd],
-                color: colors[rnd]
-            });
-
-            saveData();
-            renderCategoriesTab();
-            closeModal('modal-category');
-            showMessage('Sucesso', 'Categoria adicionada.');
-        }
-
-        function renderBudgets() {
-            const list = document.getElementById('budget-list');
-            list.innerHTML = '';
-            
-            const expCategories = appState.categories.filter(c => c.type === 'expense');
-            
-            expCategories.forEach(cat => {
-                const currentVal = appState.budgets[cat.id] || 0;
-                list.innerHTML += `
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center w-1/2">
-                            <i class="ph ${cat.icon} text-lg mr-2" style="color: ${cat.color}"></i>
-                            <span class="text-sm font-medium text-gray-700">${cat.name}</span>
-                        </div>
-                        <div class="w-1/2 flex items-center bg-gray-50 rounded-lg px-3 border border-gray-200">
-                            <span class="text-gray-500 text-sm mr-1">R$</span>
-                            <input type="number" step="10" id="budget_input_${cat.id}" value="${currentVal}" class="w-full bg-transparent border-none py-2 text-right focus:ring-0 outline-none font-medium text-gray-800">
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function saveBudgets() {
-            const expCategories = appState.categories.filter(c => c.type === 'expense');
-            expCategories.forEach(cat => {
-                const val = parseFloat(document.getElementById(`budget_input_${cat.id}`).value) || 0;
-                appState.budgets[cat.id] = val;
-            });
-            saveData();
-            showMessage('Limites Atualizados', 'Seus limites de orçamento foram salvos.');
-        }
-
-        // --------------------------------------------------------
-        // NLP & Chatbot Logic
-        // --------------------------------------------------------
-
-        function handleChatKeyPress(e) {
-            if(e.key === 'Enter') sendChatMessage();
-        }
-
-        function appendMessage(text, isUser) {
-            const chatArea = document.getElementById('chat-messages');
-            const time = new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
-            
-            if(isUser) {
-                chatArea.innerHTML += `
-                    <div class="flex justify-end mb-4">
-                        <div class="bg-[#dcf8c6] text-gray-800 p-3 rounded-xl rounded-tr-none msg-bubble shadow-sm text-sm">
-                            ${text}
-                            <span class="block text-right text-[10px] text-gray-500 mt-1">${time}</span>
-                        </div>
-                    </div>
-                `;
-            } else {
-                chatArea.innerHTML += `
-                    <div class="flex justify-start mb-4">
-                        <div class="bg-white text-gray-800 p-3 rounded-xl rounded-tl-none msg-bubble shadow-sm text-sm">
-                            ${text}
-                            <span class="block text-right text-[10px] text-gray-400 mt-1">${time}</span>
-                        </div>
-                    </div>
-                `;
-            }
-            chatArea.scrollTop = chatArea.scrollHeight;
-        }
-
-        function processNLP(message) {
-            const lowerMsg = message.toLowerCase();
-            
-            // 1. Extract Value
-            // Matches numbers like 50, 50.00, 50,00, 1.500,00, R$ 50
-            const valueMatch = lowerMsg.match(/(?:r\$)?\s?(\d+(?:\.\d{3})*(?:,\d{2})?|\d+(?:,\d{2})?|\d+(?:\.\d{2})?)/);
-            
-            if(!valueMatch) {
-                return "Desculpe, não consegui identificar o valor. Tente digitar algo como 'Mercado 150' ou 'Conta de Luz R$ 80,50'.";
-            }
-
-            // Parse Value string to float
-            let valStr = valueMatch[1].replace(/\./g, '').replace(',', '.');
-            let amount = parseFloat(valStr);
-
-            if(amount <= 0) return "O valor precisa ser maior que zero.";
-
-            // 2. Extract Description (remove value part)
-            let desc = message.replace(valueMatch[0], '').trim();
-            if(desc.length === 0) desc = "Lançamento via Chat";
-
-            // 3. Category Inference (The 'Learning' brain)
-            let categoryId = null;
-            
-            // Sort keywords by length descending to match composite words first
-            const keywords = Object.keys(appState.keywordDict).sort((a,b) => b.length - a.length);
-            
-            for(let kw of keywords) {
-                if(lowerMsg.includes(kw)) {
-                    categoryId = appState.keywordDict[kw];
-                    break;
-                }
-            }
-
-            // Fallbacks if no match
-            let isIncome = lowerMsg.includes('recebi') || lowerMsg.includes('salario') || lowerMsg.includes('venda') || lowerMsg.includes('pagamento');
-            let type = isIncome ? 'income' : 'expense';
-            
-            if(!categoryId) {
-                if(isIncome) {
-                    categoryId = appState.categories.find(c => c.type === 'income')?.id;
-                } else {
-                    categoryId = 'cat_7'; // Default to "Outros"
-                }
-            } else {
-                // Get type from category
-                type = getCategory(categoryId).type;
-            }
-
-            // 4. Save the transaction
-            const todayStr = new Date().toISOString().split('T')[0]; // Using today's actual date for chat imports
-            
-            appState.transactions.push({
-                id: generateId(),
-                description: desc.charAt(0).toUpperCase() + desc.slice(1),
-                amount: amount,
-                date: todayStr,
-                categoryId: categoryId,
-                type: type,
-                source: 'chat' // Flag to allow learning upon correction
-            });
-
-            saveData();
-            
-            const catObj = getCategory(categoryId);
-            return `✅ Adicionado com sucesso!\n\n<b>${desc}</b>\nValor: R$ ${amount.toFixed(2).replace('.',',')}\nCategoria: ${catObj.name}\n\n<i>Se a categoria estiver incorreta, basta editar na aba Histórico que eu aprenderei para a próxima vez!</i>`;
-        }
-
-        function sendChatMessage() {
-            const input = document.getElementById('chat-input');
-            const text = input.value.trim();
-            if(!text) return;
-
-            // User message
-            appendMessage(text, true);
-            input.value = '';
-
-            // Bot 'typing' simulation
-            setTimeout(() => {
-                const response = processNLP(text);
-                appendMessage(response, false);
-            }, 800);
-        }
-
-        function learnFromCorrection(description, newCategoryId, newType) {
-            // Take the first main word of the description to map
-            let words = description.toLowerCase().split(/\s+/).filter(w => w.length > 2);
-            if(words.length > 0) {
-                // Map the longest word or the first substantive
-                let keyword = words[0]; 
-                appState.keywordDict[keyword] = newCategoryId;
-                console.log(`Bot learned: '${keyword}' is now mapped to ${newCategoryId}`);
-                
-                // Show a nice non-intrusive toast notification
-                const toast = document.createElement('div');
-                toast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full shadow-lg z-50 text-sm flex items-center animate-fade-in-down';
-                toast.innerHTML = `<i class="ph-fill ph-robot text-emerald-400 mr-2 text-lg"></i> Aprendi que "${keyword}" é ${getCategory(newCategoryId).name}!`;
-                document.body.appendChild(toast);
-                setTimeout(() => {
-                    toast.style.opacity = '0';
-                    toast.style.transition = 'opacity 0.5s ease';
-                    setTimeout(() => toast.remove(), 500);
-                }, 4000);
-            }
-        }
-
-        // Add small keyframe for toast
-        const style = document.createElement('style');
-        style.innerHTML = `
-            @keyframes fadeInDown {
-                0% { opacity: 0; transform: translate(-50%, -20px); }
-                100% { opacity: 1; transform: translate(-50%, 0); }
-            }
-            .animate-fade-in-down { animation: fadeInDown 0.3s ease-out forwards; }
-        `;
-        document.head.appendChild(style);
-
-        // Start App
-        window.onload = initApp;
-
-    </script>
+// ---- INIT ----
+window.addEventListener('DOMContentLoaded', () => {
+  appModules.state.loadFromStorage();
+  appModules.navigation.updateMonthDisplay();
+  appModules.navigation.switchTab('dashboard');
+  appModules.transactions.populateCategorySelect();
+  console.log('✅ Rocha Finance inicializado!');
+});
+</script>
 </body>
 </html>
-
-
