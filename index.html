@@ -63,6 +63,210 @@
     pointer-events: none;
   }
 
+  /* ---- USER SELECT SCREEN ---- */
+  #user-select-screen {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    gap: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  #user-select-screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .user-select-card {
+    width: 100%;
+    max-width: 400px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 40px 36px 36px;
+    box-shadow: 0 8px 48px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .user-select-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .user-select-logo .logo-mark {
+    width: 40px;
+    height: 40px;
+  }
+
+  .user-select-logo .logo-mark span { font-size: 20px; }
+
+  .user-select-heading {
+    text-align: center;
+  }
+
+  .user-select-heading h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--text);
+    letter-spacing: -0.4px;
+    margin-bottom: 6px;
+  }
+
+  .user-select-heading p {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .user-options {
+    display: flex;
+    gap: 14px;
+    width: 100%;
+  }
+
+  .user-option {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 22px 14px;
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    user-select: none;
+  }
+
+  .user-option:hover {
+    border-color: var(--border2);
+    background: #28281f;
+    transform: translateY(-2px);
+  }
+
+  .user-option.selected {
+    border-color: var(--accent);
+    background: var(--accent-muted);
+  }
+
+  .user-option.selected .user-avatar {
+    box-shadow: 0 0 0 3px var(--accent-dark);
+  }
+
+  .user-check {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #0f0f0e;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .user-option.selected .user-check {
+    display: flex;
+  }
+
+  .user-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px;
+    font-weight: 400;
+    transition: box-shadow 0.2s;
+  }
+
+  .user-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    text-align: center;
+  }
+
+  .user-role {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: -6px;
+  }
+
+  .user-select-btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--accent);
+    color: #0f0f0e;
+    border: none;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .user-select-btn:hover:not(:disabled) {
+    background: var(--accent-dark);
+    transform: translateY(-1px);
+  }
+
+  .user-select-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* ---- CURRENT USER BADGE (sidebar) ---- */
+  .current-user-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 10px;
+  }
+
+  .cub-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .cub-info { flex: 1; min-width: 0; }
+  .cub-name { font-size: 12px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cub-role { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+
   .loading-logo {
     width: 52px;
     height: 52px;
@@ -1018,12 +1222,138 @@
     .grid-3 { grid-template-columns: 1fr; }
     .grid-2 { grid-template-columns: 1fr; }
   }
+
+  /* ---- BUDGET PROGRESS ---- */
+  .budget-progress-row {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .budget-progress-row:last-child { border-bottom: none; }
+
+  .budget-progress-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .budget-progress-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .budget-progress-values {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .budget-progress-bar-bg {
+    height: 7px;
+    background: var(--surface2);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .budget-progress-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  .budget-pct-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 5px;
+    margin-left: 6px;
+  }
+
+  /* ---- BUDGET EXCEEDED TOAST ---- */
+  #budget-warning-box {
+    position: fixed;
+    bottom: 80px;
+    right: 24px;
+    background: var(--surface);
+    border: 1px solid var(--red);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    box-shadow: 0 4px 32px rgba(255,90,90,0.18);
+    z-index: 201;
+    animation: slide-in 0.3s ease;
+    min-width: 280px;
+    max-width: 340px;
+  }
+  #budget-warning-box.hidden { display: none; }
+  .bw-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: var(--red-muted);
+    color: var(--red);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .bw-content h4 { font-size: 13px; font-weight: 600; color: var(--red); }
+  .bw-content p  { font-size: 12px; color: var(--text-soft); margin-top: 3px; line-height: 1.4; }
 </style>
 </head>
 <body>
 
+<!-- USER SELECT SCREEN -->
+<div id="user-select-screen">
+  <div class="user-select-card">
+
+    <div class="user-select-logo">
+      <div class="logo-mark"><span>R</span></div>
+      <div class="logo-text" style="font-family:'DM Serif Display',serif;font-size:18px;color:var(--text)">
+        Rocha <span style="color:var(--accent)">Finance</span>
+      </div>
+    </div>
+
+    <div class="user-select-heading">
+      <h2>Quem está acessando?</h2>
+      <p>Selecione seu perfil para continuar</p>
+    </div>
+
+    <div class="user-options">
+      <!-- Leticia -->
+      <div class="user-option" id="opt-leticia" onclick="UserAuth.select('leticia')">
+        <div class="user-check"><i class="ph ph-check" style="font-size:10px"></i></div>
+        <div class="user-avatar" style="background:#e879f920;color:#e879f9">L</div>
+        <div>
+          <div class="user-name">Leticia</div>
+          <div class="user-role">Perfil pessoal</div>
+        </div>
+      </div>
+
+      <!-- Matheus -->
+      <div class="user-option" id="opt-matheus" onclick="UserAuth.select('matheus')">
+        <div class="user-check"><i class="ph ph-check" style="font-size:10px"></i></div>
+        <div class="user-avatar" style="background:#38bdf820;color:#38bdf8">M</div>
+        <div>
+          <div class="user-name">Matheus</div>
+          <div class="user-role">Perfil pessoal</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="user-select-btn" id="btn-entrar" onclick="UserAuth.confirm()" disabled>
+      <i class="ph ph-sign-in"></i> Entrar
+    </button>
+
+  </div>
+</div>
+
 <!-- LOADING OVERLAY -->
-<div id="loading-overlay">
+<div id="loading-overlay" class="hidden">
   <div class="loading-logo"><span>R</span></div>
   <div class="loading-spinner"></div>
   <div class="loading-text">Carregando dados...</div>
@@ -1064,13 +1394,21 @@
     </button>
 
     <div class="sidebar-footer">
+      <!-- Badge do usuário logado -->
+      <div class="current-user-badge" id="user-badge">
+        <div class="cub-avatar" id="user-badge-avatar"></div>
+        <div class="cub-info">
+          <div class="cub-name" id="user-badge-name">—</div>
+          <div class="cub-role">Perfil pessoal</div>
+        </div>
+      </div>
       <div class="month-nav">
         <button onclick="appModules.navigation.changeMonth(-1)"><i class="ph ph-caret-left"></i></button>
         <span id="current-month-display">Maio 2026</span>
         <button onclick="appModules.navigation.changeMonth(1)"><i class="ph ph-caret-right"></i></button>
       </div>
       <button class="nav-btn" style="margin-top:8px;padding-left:0;color:var(--text-muted)" onclick="appModules.auth.logout()">
-        <i class="ph ph-sign-out"></i> Sair
+        <i class="ph ph-sign-out"></i> Trocar usuário
       </button>
     </div>
   </aside>
@@ -1114,20 +1452,28 @@
             </div>
           </div>
 
-          <div class="card" style="display:flex;flex-direction:column;gap:14px">
-            <div class="section-title"><i class="ph ph-lightning"></i> Ações Rápidas</div>
-            <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="appModules.transactions.openModal()">
-              <i class="ph ph-plus-circle"></i> Lançar Transação
-            </button>
-            <button class="btn btn-ghost" style="width:100%;justify-content:center;padding:12px" onclick="appModules.navigation.switchTab('chat')">
-              <i class="ph ph-robot"></i> Usar Assistente IA
-            </button>
-            <button class="btn btn-ghost" style="width:100%;justify-content:center;padding:12px" onclick="appModules.navigation.switchTab('recurring')">
-              <i class="ph ph-repeat"></i> Gerenciar Recorrentes
-            </button>
-            <button class="btn btn-ghost" style="width:100%;justify-content:center;padding:12px" onclick="appModules.navigation.switchTab('reports')">
-              <i class="ph ph-chart-bar"></i> Ver Relatórios
-            </button>
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div class="card">
+              <div class="section-title" style="margin-bottom:14px"><i class="ph ph-target"></i> Limite vs. Gasto por Categoria</div>
+              <div id="budget-progress-list">
+                <p style="font-size:13px;color:var(--text-muted)">Configure limites na aba <strong>Limites</strong>.</p>
+              </div>
+            </div>
+            <div class="card" style="display:flex;flex-direction:column;gap:12px">
+              <div class="section-title"><i class="ph ph-lightning"></i> Ações Rápidas</div>
+              <button class="btn btn-primary" style="width:100%;justify-content:center;padding:11px" onclick="appModules.transactions.openModal()">
+                <i class="ph ph-plus-circle"></i> Lançar Transação
+              </button>
+              <button class="btn btn-ghost" style="width:100%;justify-content:center;padding:11px" onclick="appModules.navigation.switchTab('chat')">
+                <i class="ph ph-robot"></i> Usar Assistente IA
+              </button>
+              <button class="btn btn-ghost" style="width:100%;justify-content:center;padding:11px" onclick="appModules.navigation.switchTab('recurring')">
+                <i class="ph ph-repeat"></i> Gerenciar Recorrentes
+              </button>
+              <button class="btn btn-ghost" style="width:100%;justify-content:center;padding:11px" onclick="appModules.navigation.switchTab('reports')">
+                <i class="ph ph-chart-bar"></i> Ver Relatórios
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -1138,10 +1484,12 @@
           <table class="tx-table">
             <thead>
               <tr>
-                <th>Data</th>
+                <th>Lançamento</th>
+                <th>Pagamento</th>
                 <th>Descrição</th>
                 <th>Categoria</th>
                 <th style="text-align:right">Valor</th>
+                <th>Por</th>
                 <th>Ações</th>
               </tr>
             </thead>
@@ -1171,7 +1519,8 @@
                 Olá! Pode me dizer seus gastos em linguagem natural.<br><br>
                 Exemplos:<br>
                 <em>"Mercado 150"</em><br>
-                <em>"Gasolina 80,50"</em><br>
+                <em>"Gasolina 80,50 pago dia 20"</em><br>
+                <em>"Aluguel 1500 vence 10/06"</em><br>
                 <em>"Recebi salário 3000"</em>
               </div>
               <div class="msg-time">Agora</div>
@@ -1180,9 +1529,10 @@
 
           <div class="chat-hint">
             <span onclick="fillChat('Mercado 150')">Mercado 150</span>
-            <span onclick="fillChat('Gasolina 80')">Gasolina 80</span>
+            <span onclick="fillChat('Gasolina 80 pago dia 20')">Gasolina pago dia 20</span>
             <span onclick="fillChat('Uber 25')">Uber 25</span>
             <span onclick="fillChat('iFood 45')">iFood 45</span>
+            <span onclick="fillChat('Aluguel 1500 vence 10/06')">Aluguel vence 10/06</span>
             <span onclick="fillChat('Recebi salário 5000')">Salário 5000</span>
           </div>
 
@@ -1305,9 +1655,14 @@
           <input id="tx-amount" class="form-input" placeholder="0,00" type="number" min="0.01" step="0.01">
         </div>
         <div class="form-group">
-          <label class="form-label">Data</label>
+          <label class="form-label">Data de Lançamento</label>
           <input id="tx-date" class="form-input" type="date">
         </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Data de Pagamento <span style="color:var(--text-muted);font-size:10px;text-transform:none;letter-spacing:0">(opcional)</span></label>
+        <input id="tx-payment-date" class="form-input" type="date" placeholder="Deixe em branco se igual ao lançamento">
       </div>
 
       <div class="form-group">
@@ -1413,6 +1768,19 @@
   </button>
 </div>
 
+<!-- BUDGET WARNING TOAST -->
+<div id="budget-warning-box" class="hidden">
+  <div class="bw-icon"><i class="ph ph-warning"></i></div>
+  <div class="bw-content">
+    <h4 id="bw-title">Limite ultrapassado!</h4>
+    <p id="bw-text"></p>
+  </div>
+  <button onclick="document.getElementById('budget-warning-box').classList.add('hidden')"
+    style="background:none;border:none;color:var(--text-muted);cursor:pointer;margin-left:auto;font-size:16px;display:flex;align-items:flex-start;padding-top:2px">
+    <i class="ph ph-x"></i>
+  </button>
+</div>
+
 <!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
@@ -1488,9 +1856,11 @@ const DB = {
     description: t.description,
     amount: Number(t.amount),
     date: t.date,
+    paymentDate: t.payment_date || null,
     categoryId: t.category_id,
     type: t.type,
     source: t.source || 'manual',
+    insertedBy: t.inserted_by || null,
     createdAt: t.created_at
   }),
 
@@ -1555,9 +1925,11 @@ const DB = {
       description: tx.description,
       amount: tx.amount,
       date: tx.date,
+      payment_date: tx.paymentDate || null,
       category_id: tx.categoryId,
       type: tx.type,
-      source: tx.source || 'manual'
+      source: tx.source || 'manual',
+      inserted_by: tx.insertedBy || UserAuth.getCurrentUser() || null
     });
     if (error) throw error;
   },
@@ -1627,21 +1999,66 @@ const NLPModule = {
     return {
       success: true,
       description: desc.charAt(0).toUpperCase() + desc.slice(1),
-      amount, categoryId, type
+      amount, categoryId, type,
+      paymentDate: NLPModule.extractPaymentDate(lower)
     };
+  },
+
+  extractPaymentDate(lower) {
+    // Padrões: "pago dia 20", "vence dia 15", "pagamento 10/06", "pagar no dia 5", "data pgto 2025-06-15"
+    const today = new Date();
+    const year  = today.getFullYear();
+    const month = today.getMonth() + 1;
+
+    // DD/MM/YYYY ou DD/MM
+    let m = lower.match(/(?:pag[ao]|vence|vencimento|data\s*(?:de\s*)?pag[ao]|pgto|payment)(?:\s+(?:dia|em|no)?)?\s*(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?/);
+    if (m) {
+      const d  = m[1].padStart(2,'0');
+      const mo = m[2].padStart(2,'0');
+      const y  = m[3] ? (m[3].length === 2 ? '20'+m[3] : m[3]) : year;
+      return `${y}-${mo}-${d}`;
+    }
+
+    // "dia X" or "no dia X"
+    m = lower.match(/(?:pag[ao]|vence|vencimento|data\s*(?:de\s*)?pag[ao]|pgto)(?:\s+(?:n[oa]\s*)?dia)?\s+(\d{1,2})(?!\d)/);
+    if (m) {
+      const d  = m[1].padStart(2,'0');
+      const mo = String(month).padStart(2,'0');
+      return `${year}-${mo}-${d}`;
+    }
+
+    // YYYY-MM-DD
+    m = lower.match(/(?:pag[ao]|vence|pgto)\s+(\d{4}-\d{2}-\d{2})/);
+    if (m) return m[1];
+
+    return null;
   }
 };
 
 // ============================================================
-// 5. EXPORT MODULE
+// 5. EXPORT MODULE — separador ponto-e-vírgula, BOM UTF-8
 // ============================================================
 const ExportImportModule = {
   exportToCSV(transactions, categories) {
-    let csv = 'Data,Descrição,Categoria,Tipo,Valor\n';
+    const SEP = ';';
+    const BOM = '\uFEFF';
+    const esc = v => `"${String(v).replace(/"/g, '""')}"`;
+    let csv = BOM + ['Data Lançamento','Data Pagamento','Descrição','Categoria','Tipo','Valor (R$)','Inserido Por'].join(SEP) + '\n';
     transactions.forEach(tx => {
-      const cat = Utils.getCategory(tx.categoryId, categories);
+      const cat   = Utils.getCategory(tx.categoryId, categories);
       const value = tx.type === 'income' ? tx.amount : -tx.amount;
-      csv += `${Utils.formatDate(tx.date)},"${tx.description}","${cat.name}","${tx.type}","${value.toFixed(2)}"\n`;
+      const tipo  = tx.type === 'income' ? 'Entrada' : 'Saída';
+      const pgto  = tx.paymentDate ? Utils.formatDate(tx.paymentDate) : '';
+      const user  = tx.insertedBy ? (UserAuth.USERS[tx.insertedBy]?.name || tx.insertedBy) : '';
+      csv += [
+        Utils.formatDate(tx.date),
+        pgto,
+        esc(tx.description),
+        esc(cat.name),
+        tipo,
+        value.toFixed(2).replace('.', ','),
+        user
+      ].join(SEP) + '\n';
     });
     const a = document.createElement('a');
     a.href = `data:text/csv;charset=utf-8,${encodeURIComponent(csv)}`;
@@ -1743,6 +2160,53 @@ const appModules = {
         bgColors.push(cat.color);
       });
       this.renderChart(labels, data, bgColors);
+      this.renderBudgetProgress(catTotals, state);
+    },
+
+    renderBudgetProgress(catTotals, state) {
+      const list = document.getElementById('budget-progress-list');
+      if (!list) return;
+
+      const expCats = state.categories.filter(c => c.type === 'expense');
+      // Mostra categorias que têm limite OU têm gastos no mês
+      const visible = expCats.filter(c => state.budgets[c.id] || catTotals[c.id]);
+
+      if (visible.length === 0) {
+        list.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">Configure limites na aba <strong>Limites</strong> ou registre gastos.</p>';
+        return;
+      }
+
+      list.innerHTML = visible.map(cat => {
+        const spent = catTotals[cat.id] || 0;
+        const limit = state.budgets[cat.id] || 0;
+        const hasLimit = limit > 0;
+        const pct = hasLimit ? Math.min((spent / limit) * 100, 100) : 0;
+        const overBudget = hasLimit && spent > limit;
+        const nearLimit  = hasLimit && !overBudget && pct >= 80;
+        const barColor   = overBudget ? 'var(--red)' : nearLimit ? 'var(--gold)' : cat.color;
+        const pctLabel   = hasLimit ? `${Math.round(pct)}%` : '';
+        const pctBg      = overBudget ? 'var(--red-muted)' : nearLimit ? '#f5c84222' : cat.color + '22';
+        const pctFg      = overBudget ? 'var(--red)' : nearLimit ? 'var(--gold)' : cat.color;
+
+        return `
+          <div class="budget-progress-row">
+            <div class="budget-progress-meta">
+              <span class="budget-progress-name">
+                <span style="width:8px;height:8px;border-radius:50%;background:${cat.color};display:inline-block;flex-shrink:0"></span>
+                ${cat.name}
+                ${hasLimit ? `<span class="budget-pct-badge" style="background:${pctBg};color:${pctFg}">${pctLabel}</span>` : ''}
+                ${overBudget ? '<i class="ph ph-warning" style="color:var(--red);font-size:13px"></i>' : ''}
+              </span>
+              <span class="budget-progress-values">
+                ${Utils.formatCurrency(spent)}${hasLimit ? ` <span style="color:var(--border2)">/</span> ${Utils.formatCurrency(limit)}` : '<span style="color:var(--text-muted);font-size:11px"> sem limite</span>'}
+              </span>
+            </div>
+            ${hasLimit ? `
+            <div class="budget-progress-bar-bg">
+              <div class="budget-progress-bar-fill" style="width:${pct}%;background:${barColor}"></div>
+            </div>` : ''}
+          </div>`;
+      }).join('');
     },
 
     renderChart(labels, data, bgColors) {
@@ -1798,9 +2262,20 @@ const appModules = {
           const cat = Utils.getCategory(tx.categoryId, state.categories);
           const isInc = tx.type === 'income';
           const aiIcon = tx.source === 'chat' ? `<i class="ph-fill ph-robot" style="color:var(--accent);font-size:11px;margin-left:4px"></i>` : '';
+          const pgto = tx.paymentDate
+            ? `<span style="color:var(--text-soft)">${Utils.formatDate(tx.paymentDate)}</span>`
+            : `<span style="color:var(--text-muted);font-size:11px">—</span>`;
+
+          // Badge de quem inseriu
+          const userInfo = tx.insertedBy ? UserAuth.USERS[tx.insertedBy] : null;
+          const userCell = userInfo
+            ? `<div title="Inserido por ${userInfo.name}" style="width:26px;height:26px;border-radius:50%;background:${userInfo.bg};color:${userInfo.color};display:inline-flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:12px;font-weight:400">${userInfo.initial}</div>`
+            : `<span style="color:var(--text-muted);font-size:11px">—</span>`;
+
           list.innerHTML += `
             <tr>
               <td class="tx-date">${Utils.formatDate(tx.date)}</td>
+              <td class="tx-date">${pgto}</td>
               <td class="tx-desc">${tx.description}${aiIcon}</td>
               <td>
                 <span class="cat-badge" style="background:${cat.color}18;color:${cat.color}">
@@ -1810,6 +2285,7 @@ const appModules = {
               <td class="tx-amount ${isInc ? 'income' : 'expense'}">
                 ${isInc ? '+' : '-'} ${Utils.formatCurrency(tx.amount)}
               </td>
+              <td style="text-align:center">${userCell}</td>
               <td class="tx-actions" style="display:flex;gap:4px;justify-content:center">
                 <button class="icon-btn" style="color:var(--text-muted)" onclick="appModules.transactions.openEditModal('${tx.id}')" title="Editar">
                   <i class="ph ph-pencil-simple"></i>
@@ -1909,6 +2385,7 @@ const appModules = {
       document.getElementById('tx-source').value = 'manual';
       document.getElementById('modal-tx-title').innerText = 'Nova Transação';
       document.getElementById('tx-date').value = Utils.today();
+      document.getElementById('tx-payment-date').value = '';
       this.setType('expense');
       document.getElementById('tx-desc').value = '';
       document.getElementById('tx-amount').value = '';
@@ -1944,6 +2421,7 @@ const appModules = {
       document.getElementById('tx-desc').value = tx.description;
       document.getElementById('tx-amount').value = tx.amount;
       document.getElementById('tx-date').value = tx.date;
+      document.getElementById('tx-payment-date').value = tx.paymentDate || '';
 
       this.setType(tx.type);
       setTimeout(() => {
@@ -1955,13 +2433,14 @@ const appModules = {
     },
 
     async save() {
-      const id         = document.getElementById('tx-id').value;
-      const desc       = document.getElementById('tx-desc').value.trim();
-      const amount     = parseFloat(document.getElementById('tx-amount').value);
-      const date       = document.getElementById('tx-date').value;
-      const categoryId = document.getElementById('tx-category').value;
-      const type       = document.getElementById('tx-type').value;
-      const source     = document.getElementById('tx-source').value;
+      const id          = document.getElementById('tx-id').value;
+      const desc        = document.getElementById('tx-desc').value.trim();
+      const amount      = parseFloat(document.getElementById('tx-amount').value);
+      const date        = document.getElementById('tx-date').value;
+      const paymentDate = document.getElementById('tx-payment-date').value || null;
+      const categoryId  = document.getElementById('tx-category').value;
+      const type        = document.getElementById('tx-type').value;
+      const source      = document.getElementById('tx-source').value;
 
       if (!desc || !amount || !date || !categoryId) {
         appModules.ui.showMessage('Atenção', 'Preencha todos os campos!', 'error');
@@ -1974,7 +2453,8 @@ const appModules = {
       try {
         const tx = {
           id: id || Utils.generateId(),
-          description: desc, amount, date, categoryId, type, source
+          description: desc, amount, date, paymentDate, categoryId, type, source,
+          insertedBy: UserAuth.getCurrentUser()
         };
 
         await DB.upsertTransaction(tx);
@@ -1992,6 +2472,9 @@ const appModules = {
         appModules.ui.showMessage('Sucesso', id ? 'Transação atualizada!' : 'Transação salva!');
         appModules.navigation.renderDashboard();
         appModules.navigation.renderTransactions();
+
+        // Verificar se ultrapassou o limite após salvar
+        if (type === 'expense') appModules.ui.checkBudgetAlert(categoryId, state);
       } catch (err) {
         console.error(err);
         appModules.ui.showMessage('Erro', 'Não foi possível salvar. Tente novamente.', 'error');
@@ -2094,9 +2577,11 @@ const appModules = {
             description: result.description,
             amount: result.amount,
             date: Utils.today(),
+            paymentDate: result.paymentDate || null,
             categoryId: result.categoryId,
             type: result.type,
             source: 'chat',
+            insertedBy: UserAuth.getCurrentUser(),
             createdAt: new Date().toISOString()
           };
 
@@ -2106,7 +2591,13 @@ const appModules = {
             appModules.state.setState(state);
 
             const cat = Utils.getCategory(result.categoryId, state.categories);
-            this.appendMessage(`✅ <strong>${result.description}</strong><br>${Utils.formatCurrency(result.amount)} &mdash; ${cat.name}<br><small style="color:var(--text-muted)">Errou a categoria? Edite no histórico.</small>`, false);
+            const pgtoInfo = result.paymentDate
+              ? `<br><small style="color:var(--text-muted)"><i class="ph ph-calendar-check"></i> Pagamento: ${Utils.formatDate(result.paymentDate)}</small>`
+              : '';
+            this.appendMessage(`✅ <strong>${result.description}</strong><br>${Utils.formatCurrency(result.amount)} &mdash; ${cat.name}${pgtoInfo}<br><small style="color:var(--text-muted)">Errou a categoria? Edite no histórico.</small>`, false);
+
+            // Verificar limite
+            if (result.type === 'expense') appModules.ui.checkBudgetAlert(result.categoryId, appModules.state.getState());
           } catch (err) {
             console.error(err);
             this.appendMessage('❌ Erro ao salvar no banco. Verifique sua conexão.', false);
@@ -2194,13 +2685,100 @@ const appModules = {
     closeMessage() {
       const box = document.getElementById('message-box');
       if (box) box.classList.add('hidden');
+    },
+
+    checkBudgetAlert(categoryId, state) {
+      const limit = state.budgets[categoryId] || 0;
+      if (limit <= 0) return; // sem limite configurado
+
+      const prefix = Utils.getMonthYearStr(state.currentDate);
+      const spent  = state.transactions
+        .filter(t => t.type === 'expense' && t.categoryId === categoryId && t.date.startsWith(prefix))
+        .reduce((s, t) => s + t.amount, 0);
+
+      if (spent <= limit) return;
+
+      const cat   = Utils.getCategory(categoryId, state.categories);
+      const extra = spent - limit;
+      const box   = document.getElementById('budget-warning-box');
+      const title = document.getElementById('bw-title');
+      const text  = document.getElementById('bw-text');
+      if (!box) return;
+      if (title) title.innerText = `Limite de ${cat.name} ultrapassado!`;
+      if (text)  text.innerText  = `Gasto: ${Utils.formatCurrency(spent)} | Limite: ${Utils.formatCurrency(limit)} | Excesso: ${Utils.formatCurrency(extra)}`;
+      box.classList.remove('hidden');
+      clearTimeout(this._budgetTimer);
+      this._budgetTimer = setTimeout(() => box.classList.add('hidden'), 6000);
     }
   },
 
   auth: {
     logout() {
-      if (confirm('Deseja sair?')) location.reload();
+      if (confirm('Deseja trocar de usuário?')) UserAuth.logout();
     }
+  }
+};
+
+// ============================================================
+// USER AUTH — seleção de perfil na tela inicial
+// ============================================================
+const UserAuth = {
+  USERS: {
+    leticia: { name: 'Leticia', initial: 'L', color: '#e879f9', bg: '#e879f920' },
+    matheus: { name: 'Matheus', initial: 'M', color: '#38bdf8', bg: '#38bdf820' }
+  },
+
+  _selected: null,
+
+  select(userId) {
+    this._selected = userId;
+    // Atualiza visuais dos cards
+    document.querySelectorAll('.user-option').forEach(el => el.classList.remove('selected'));
+    const optEl = document.getElementById(`opt-${userId}`);
+    if (optEl) optEl.classList.add('selected');
+    // Habilita botão Entrar
+    const btn = document.getElementById('btn-entrar');
+    if (btn) {
+      btn.disabled = false;
+      const u = this.USERS[userId];
+      btn.innerHTML = `<i class="ph ph-sign-in"></i> Entrar como ${u.name}`;
+    }
+  },
+
+  confirm() {
+    if (!this._selected) return;
+    sessionStorage.setItem('rf_user', this._selected);
+    const screen = document.getElementById('user-select-screen');
+    if (screen) {
+      screen.classList.add('hidden');
+      setTimeout(() => { screen.style.display = 'none'; }, 400);
+    }
+    this.applyUser(this._selected);
+    // Dispara o carregamento dos dados
+    window._rfStartLoad && window._rfStartLoad();
+  },
+
+  applyUser(userId) {
+    const u = this.USERS[userId];
+    if (!u) return;
+    // Badge na sidebar
+    const avatar = document.getElementById('user-badge-avatar');
+    const name   = document.getElementById('user-badge-name');
+    if (avatar) {
+      avatar.style.background = u.bg;
+      avatar.style.color      = u.color;
+      avatar.innerText        = u.initial;
+    }
+    if (name) name.innerText = u.name;
+  },
+
+  getCurrentUser() {
+    return sessionStorage.getItem('rf_user') || null;
+  },
+
+  logout() {
+    sessionStorage.removeItem('rf_user');
+    location.reload();
   }
 };
 
@@ -2299,27 +2877,41 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
 // ============================================================
 // INICIALIZAÇÃO
 // ============================================================
-window.addEventListener('DOMContentLoaded', async () => {
+async function startApp() {
   const overlay = document.getElementById('loading-overlay');
+  if (overlay) overlay.classList.remove('hidden');
 
   try {
     await DB.loadAll();
   } catch (err) {
     console.error('Erro ao carregar dados do Supabase:', err);
-    // Continua com state vazio se falhar
   }
 
   appModules.navigation.updateMonthDisplay();
   appModules.navigation.switchTab('dashboard');
   appModules.transactions.populateCategorySelect();
 
-  // Esconde o loading com fade
   if (overlay) {
     overlay.classList.add('hidden');
     setTimeout(() => overlay.remove(), 400);
   }
 
   console.log('✅ Rocha Finance inicializado com Supabase!');
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const existingUser = UserAuth.getCurrentUser();
+
+  if (existingUser) {
+    // Usuário já estava logado nesta sessão — entra direto
+    const screen = document.getElementById('user-select-screen');
+    if (screen) screen.style.display = 'none';
+    UserAuth.applyUser(existingUser);
+    startApp();
+  } else {
+    // Exibe a tela de seleção; o botão "Entrar" chamará startApp depois
+    window._rfStartLoad = startApp;
+  }
 });
 </script>
 </body>
