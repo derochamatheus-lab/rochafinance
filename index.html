@@ -1843,6 +1843,8 @@ const Utils = {
   formatDate: s => { const [y,m,d] = s.split('-'); return `${d}/${m}/${y}`; },
   getCategory: (id, cats) => cats.find(c => c.id === id) || cats[cats.length-1],
   today: () => new Date().toISOString().split('T')[0],
+  // Data efetiva: usa paymentDate quando existe, senão date
+  effectiveDate: tx => tx.paymentDate || tx.date,
 };
 
 // ============================================================
@@ -2074,7 +2076,7 @@ const ReportsModule = {
   generateSummary(transactions, categories, dateStr) {
     const d = dateStr ? new Date(dateStr) : new Date();
     const prefix = Utils.getMonthYearStr(d);
-    const txs = transactions.filter(t => t.date.startsWith(prefix));
+    const txs = transactions.filter(t => Utils.effectiveDate(t).startsWith(prefix));
     let income = 0, expense = 0;
     txs.forEach(tx => { if (tx.type === 'income') income += tx.amount; else expense += tx.amount; });
     return { income, expense, balance: income - expense, transactionCount: txs.length };
@@ -2132,7 +2134,7 @@ const appModules = {
     renderDashboard() {
       const state = appModules.state.getState();
       const prefix = Utils.getMonthYearStr(state.currentDate);
-      const txs = state.transactions.filter(t => t.date.startsWith(prefix));
+      const txs = state.transactions.filter(t => Utils.effectiveDate(t).startsWith(prefix));
 
       let income = 0, expense = 0;
       txs.forEach(t => { if (t.type === 'income') income += t.amount; else expense += t.amount; });
@@ -2246,8 +2248,8 @@ const appModules = {
       const state = appModules.state.getState();
       const prefix = Utils.getMonthYearStr(state.currentDate);
       const txs = state.transactions
-        .filter(t => t.date.startsWith(prefix))
-        .sort((a,b) => new Date(b.date) - new Date(a.date));
+        .filter(t => Utils.effectiveDate(t).startsWith(prefix))
+        .sort((a,b) => new Date(Utils.effectiveDate(b)) - new Date(Utils.effectiveDate(a)));
 
       const list = document.getElementById('transactions-list');
       const empty = document.getElementById('empty-transactions');
@@ -2693,7 +2695,7 @@ const appModules = {
 
       const prefix = Utils.getMonthYearStr(state.currentDate);
       const spent  = state.transactions
-        .filter(t => t.type === 'expense' && t.categoryId === categoryId && t.date.startsWith(prefix))
+        .filter(t => t.type === 'expense' && t.categoryId === categoryId && Utils.effectiveDate(t).startsWith(prefix))
         .reduce((s, t) => s + t.amount, 0);
 
       if (spent <= limit) return;
