@@ -985,6 +985,7 @@
     align-items: center;
     gap: 12px;
     transition: border-color 0.15s;
+    position: relative;
   }
 
   .cat-card:hover { border-color: var(--border2); }
@@ -1002,6 +1003,18 @@
 
   .cat-card-name { font-size: 13px; font-weight: 500; color: var(--text); }
   .cat-card-type { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+
+  .cat-card-actions {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .cat-card:hover .cat-card-actions { opacity: 1; }
 
   /* ---- MODALS ---- */
   .modal-overlay {
@@ -1725,10 +1738,11 @@
 <div id="modal-category" class="modal-overlay hidden">
   <div class="modal-box">
     <div class="modal-header">
-      <h2 class="modal-title">Nova Categoria</h2>
+      <h2 class="modal-title" id="modal-cat-title">Nova Categoria</h2>
       <button class="modal-close" onclick="appModules.modals.close('modal-category')"><i class="ph ph-x"></i></button>
     </div>
     <div class="modal-body">
+      <input type="hidden" id="cat-id">
       <div class="form-group">
         <label class="form-label">Nome</label>
         <input id="cat-name" class="form-input" placeholder="Ex: Educação">
@@ -1960,6 +1974,18 @@ const DB = {
   // ---- Categorias ----
   async insertCategory(cat) {
     const { error } = await db.from('categories').insert(cat);
+    if (error) throw error;
+  },
+
+  async updateCategory(cat) {
+    const { error } = await db.from('categories')
+      .update({ name: cat.name, type: cat.type, color: cat.color, icon: cat.icon })
+      .eq('id', cat.id);
+    if (error) throw error;
+  },
+
+  async deleteCategory(id) {
+    const { error } = await db.from('categories').delete().eq('id', id);
     if (error) throw error;
   },
 
@@ -2372,9 +2398,17 @@ const appModules = {
             <div class="cat-card-icon" style="background:${cat.color}20;color:${cat.color}">
               <i class="ph ${cat.icon}"></i>
             </div>
-            <div>
+            <div style="flex:1;min-width:0">
               <div class="cat-card-name">${cat.name}</div>
               <div class="cat-card-type">${cat.type === 'expense' ? 'Saída' : 'Entrada'}</div>
+            </div>
+            <div class="cat-card-actions">
+              <button class="icon-btn edit" onclick="appModules.categories.openEditModal('${cat.id}')" title="Editar categoria">
+                <i class="ph ph-pencil-simple"></i>
+              </button>
+              <button class="icon-btn" onclick="appModules.categories.delete('${cat.id}')" title="Excluir categoria">
+                <i class="ph ph-trash"></i>
+              </button>
             </div>
           </div>`;
       });
@@ -2660,7 +2694,56 @@ const appModules = {
   },
 
   categories: {
-    openModal() { appModules.modals.open('modal-category'); }
+    openModal() {
+      document.getElementById('cat-id').value   = '';
+      document.getElementById('cat-name').value = '';
+      document.getElementById('cat-type').value = 'expense';
+      document.getElementById('cat-color').value = '#6366f1';
+      document.getElementById('modal-cat-title').innerText = 'Nova Categoria';
+      appModules.modals.open('modal-category');
+    },
+
+    openEditModal(id) {
+      const state = appModules.state.getState();
+      const cat = state.categories.find(c => c.id === id);
+      if (!cat) return;
+      document.getElementById('cat-id').value    = cat.id;
+      document.getElementById('cat-name').value  = cat.name;
+      document.getElementById('cat-type').value  = cat.type;
+      document.getElementById('cat-color').value = cat.color;
+      document.getElementById('modal-cat-title').innerText = 'Editar Categoria';
+      appModules.modals.open('modal-category');
+    },
+
+    async delete(id) {
+      const state = appModules.state.getState();
+      const cat   = state.categories.find(c => c.id === id);
+      if (!cat) return;
+
+      // Verifica se há transações vinculadas
+      const linked = state.transactions.filter(t => t.categoryId === id).length;
+      const linkedRec = state.recurringTransactions.filter(r => r.categoryId === id).length;
+      const total = linked + linkedRec;
+
+      const aviso = total > 0
+        ? `\n\n⚠️ Atenção: ${total} transação(ões) usam esta categoria e ficarão sem categoria definida.`
+        : '';
+
+      if (!confirm(`Excluir a categoria "${cat.name}"?${aviso}`)) return;
+
+      try {
+        await DB.deleteCategory(id);
+        state.categories = state.categories.filter(c => c.id !== id);
+        appModules.state.setState(state);
+        appModules.ui.showMessage('Sucesso', 'Categoria excluída!');
+        appModules.navigation.renderCategories();
+        appModules.navigation.renderBudgets();
+      } catch (err) {
+        console.error(err);
+        // Erro mais comum: FK constraint (há transações vinculadas no banco)
+        appModules.ui.showMessage('Erro', 'Não foi possível excluir. Remova as transações desta categoria primeiro.', 'error');
+      }
+    }
   },
 
   modals: {
@@ -2839,6 +2922,7 @@ async function saveRecurring() {
 }
 
 async function saveCategory() {
+  const id    = document.getElementById('cat-id').value.trim();
   const name  = document.getElementById('cat-name').value.trim();
   const type  = document.getElementById('cat-type').value;
   const color = document.getElementById('cat-color').value;
@@ -2852,18 +2936,34 @@ async function saveCategory() {
   if (btn) btn.disabled = true;
 
   try {
-    const cat = { id: Utils.generateId(), name, type, color, icon: 'ph-tag' };
-    await DB.insertCategory(cat);
-
     const state = appModules.state.getState();
-    state.categories.push(cat);
-    appModules.state.setState(state);
-    appModules.modals.close('modal-category');
-    appModules.ui.showMessage('Sucesso', 'Categoria criada!');
+
+    if (id) {
+      // EDITAR categoria existente
+      const idx = state.categories.findIndex(c => c.id === id);
+      if (idx === -1) return;
+      const updated = { ...state.categories[idx], name, type, color };
+      await DB.updateCategory(updated);
+      state.categories[idx] = updated;
+      appModules.state.setState(state);
+      appModules.modals.close('modal-category');
+      appModules.ui.showMessage('Sucesso', 'Categoria atualizada!');
+    } else {
+      // CRIAR nova categoria
+      const cat = { id: Utils.generateId(), name, type, color, icon: 'ph-tag' };
+      await DB.insertCategory(cat);
+      state.categories.push(cat);
+      appModules.state.setState(state);
+      appModules.modals.close('modal-category');
+      appModules.ui.showMessage('Sucesso', 'Categoria criada!');
+    }
+
     appModules.navigation.renderCategories();
+    appModules.navigation.renderBudgets();
+    appModules.navigation.renderDashboard();
   } catch (err) {
     console.error(err);
-    appModules.ui.showMessage('Erro', 'Não foi possível criar categoria.', 'error');
+    appModules.ui.showMessage('Erro', 'Não foi possível salvar categoria.', 'error');
   } finally {
     if (btn) btn.disabled = false;
   }
