@@ -3525,6 +3525,31 @@ window.addEventListener('DOMContentLoaded', () => {
     window._rfStartLoad = startApp;
   }
 });
+
+// ---- MOBILE NAV ----
+function mobileNav(tabId) {
+  appModules.navigation.switchTab(tabId);
+  document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
+  const activeBtn = document.getElementById('mnav-' + tabId);
+  if (activeBtn) activeBtn.classList.add('active');
+  else { const more = document.getElementById('mnav-more'); if (more) more.classList.add('active'); }
+  const moreMenu = document.getElementById('mobile-more-menu');
+  if (moreMenu) moreMenu.classList.add('hidden');
+}
+
+function toggleMobileMore() {
+  const menu = document.getElementById('mobile-more-menu');
+  if (menu) menu.classList.toggle('hidden');
+}
+
+document.addEventListener('click', function(e) {
+  const menu    = document.getElementById('mobile-more-menu');
+  const moreBtn = document.getElementById('mnav-more');
+  if (menu && !menu.classList.contains('hidden') &&
+      !menu.contains(e.target) && !moreBtn?.contains(e.target)) {
+    menu.classList.add('hidden');
+  }
+});
 </script>
 
 <!-- MOBILE BOTTOM NAV -->
