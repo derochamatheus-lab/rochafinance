@@ -1316,6 +1316,260 @@
   }
   .bw-content h4 { font-size: 13px; font-weight: 600; color: var(--red); }
   .bw-content p  { font-size: 12px; color: var(--text-soft); margin-top: 3px; line-height: 1.4; }
+
+  /* ---- MOBILE BOTTOM NAV ---- */
+  .mobile-nav {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    z-index: 50;
+    padding: 6px 4px;
+    padding-bottom: calc(6px + env(safe-area-inset-bottom));
+  }
+
+  .mobile-nav-inner {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+  }
+
+  .mobile-nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 6px 10px;
+    border: none;
+    background: none;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 9px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.15s;
+    flex: 1;
+  }
+
+  .mobile-nav-btn i { font-size: 20px; }
+
+  .mobile-nav-btn.active {
+    color: var(--accent);
+    background: var(--accent-muted);
+  }
+
+  .mobile-nav-btn .mobile-nav-label { font-size: 9px; line-height: 1; }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .grid-3 { grid-template-columns: 1fr; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .mobile-nav { display: block; }
+    .page-content { padding: 16px; padding-bottom: 80px; }
+    .topbar { padding: 14px 16px; }
+    .topbar-title { font-size: 18px; }
+    /* Transactions table scroll on mobile */
+    .tx-table-wrap { overflow-x: auto; }
+    .tx-table { min-width: 520px; }
+    /* Hide less important columns on mobile */
+    .tx-table th:nth-child(2),
+    .tx-table td:nth-child(2),
+    .tx-table th:nth-child(6),
+    .tx-table td:nth-child(6) { display: none; }
+    /* Balance hero smaller on mobile */
+    .balance-hero-value { font-size: 34px; }
+    /* More menu button in topbar */
+    #topbar-more-btn { display: inline-flex !important; }
+  }
+
+  /* Mobile more menu */
+  #mobile-more-menu {
+    position: fixed;
+    bottom: 70px; right: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 14px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: var(--shadow);
+    z-index: 60;
+    min-width: 180px;
+  }
+
+  #mobile-more-menu.hidden { display: none; }
+
+  .mob-menu-btn {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; border: none; background: none;
+    color: var(--text-soft); font-size: 13px;
+    font-family: 'DM Sans', sans-serif; cursor: pointer;
+    border-radius: 8px; text-align: left; width: 100%;
+    transition: all 0.15s;
+  }
+  .mob-menu-btn:hover { background: var(--surface2); color: var(--text); }
+  .mob-menu-btn i { font-size: 16px; }
+
+  /* ---- BUDGET MONTH CONTROLS ---- */
+  .budget-month-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .budget-month-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .budget-month-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 8px;
+  }
+
+  /* ---- BUDGET TOTAL CARD (gasto total vs limite total do mês) ---- */
+  .budget-total-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .budget-total-left { display: flex; flex-direction: column; gap: 4px; }
+
+  .budget-total-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .budget-total-values {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .budget-total-spent {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+
+  .budget-total-limit {
+    font-size: 15px;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .budget-total-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+
+  .budget-total-bar-wrap {
+    width: 180px;
+    max-width: 100%;
+  }
+
+  .budget-total-bar-bg {
+    height: 8px;
+    background: var(--surface2);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .budget-total-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+
+  .budget-total-pct {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .budget-total-remaining {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 768px) {
+    .budget-total-bar-wrap { width: 100%; }
+    .budget-total-right { align-items: flex-start; width: 100%; }
+  }
+
+  /* ---- DASHBOARD BUDGET SUMMARY CARD ---- */
+  .budget-summary-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    margin-bottom: 24px;
+  }
+
+  .budget-summary-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .budget-summary-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .budget-summary-row:last-child { border-bottom: none; }
+
+  .budget-summary-total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0 0;
+    border-top: 1px solid var(--border2);
+    margin-top: 8px;
+    font-weight: 600;
+  }
 </style>
 </head>
 <body>
@@ -1450,6 +1704,36 @@
           <div class="balance-hero-sub">
             <span style="color:var(--green)"><i class="ph ph-arrow-up-right"></i> <span id="card-income">R$ 0,00</span></span>
             <span style="color:var(--red)"><i class="ph ph-arrow-down-right"></i> <span id="card-expense">R$ 0,00</span></span>
+          </div>
+        </div>
+
+        <!-- BUDGET TOTAL CARD: soma gasto vs limite do mês -->
+        <div class="budget-total-card" id="dashboard-budget-total-card" style="display:none">
+          <div class="budget-total-left">
+            <div class="budget-total-label"><i class="ph ph-coins"></i> Gasto Total vs Limite do Mês</div>
+            <div class="budget-total-values">
+              <span class="budget-total-spent" id="dash-total-spent">R$ 0</span>
+              <span class="budget-total-limit">/ <span id="dash-total-limit">R$ 0</span></span>
+            </div>
+            <div class="budget-total-remaining" id="dash-total-remaining"></div>
+          </div>
+          <div class="budget-total-right">
+            <div class="budget-total-pct" id="dash-total-pct">0%</div>
+            <div class="budget-total-bar-wrap">
+              <div class="budget-total-bar-bg">
+                <div class="budget-total-bar-fill" id="dash-total-bar" style="width:0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BUDGET SUMMARY TOTALIZER -->
+        <div class="budget-summary-card" id="dashboard-budget-summary" style="display:none">
+          <div class="budget-summary-title"><i class="ph ph-target"></i> Resumo de Limites — <span id="dash-budget-month">—</span></div>
+          <div id="dash-budget-rows"></div>
+          <div class="budget-summary-total">
+            <span style="color:var(--text-soft)">Total Gasto / Limite Total</span>
+            <span id="dash-budget-total" style="font-variant-numeric:tabular-nums">—</span>
           </div>
         </div>
 
@@ -1606,12 +1890,22 @@
       <!-- BUDGETS -->
       <div id="tab-budgets" class="tab-content">
         <div class="tx-table-wrap" style="margin-bottom:16px">
+          <!-- Month bar -->
+          <div class="budget-month-bar">
+            <div class="budget-month-label">
+              <i class="ph ph-calendar"></i>
+              Limites de <span id="budget-month-name" style="color:var(--accent)">—</span>
+            </div>
+            <div class="budget-month-actions">
+              <button class="btn btn-ghost btn-sm" onclick="appModules.budgets.copyFromModal()" title="Copiar limites de outro mês">
+                <i class="ph ph-copy"></i> Copiar de outro mês
+              </button>
+              <button class="btn btn-primary btn-sm" onclick="appModules.budgets.save()">
+                <i class="ph ph-floppy-disk"></i> Salvar Limites
+              </button>
+            </div>
+          </div>
           <div id="budget-list"></div>
-        </div>
-        <div style="display:flex;justify-content:flex-end">
-          <button class="btn btn-primary" onclick="appModules.budgets.save()">
-            <i class="ph ph-floppy-disk"></i> Salvar Limites
-          </button>
         </div>
       </div>
 
@@ -1770,6 +2064,32 @@
   </div>
 </div>
 
+
+<!-- MODAL: Copiar Limites de Outro Mês -->
+<div id="modal-copy-budget" class="modal-overlay hidden">
+  <div class="modal-box" style="max-width:380px">
+    <div class="modal-header">
+      <h2 class="modal-title">Copiar Limites</h2>
+      <button class="modal-close" onclick="appModules.modals.close('modal-copy-budget')"><i class="ph ph-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text-soft);margin-bottom:16px;line-height:1.5">
+        Selecione o mês de origem. Os limites serão copiados para <strong id="copy-budget-dest">—</strong>. Você poderá ajustá-los antes de salvar.
+      </p>
+      <div class="form-group">
+        <label class="form-label">Copiar limites de</label>
+        <select id="copy-budget-source" class="form-select"></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="appModules.modals.close('modal-copy-budget')">Cancelar</button>
+      <button class="btn btn-primary" onclick="appModules.budgets.applyFromMonth()">
+        <i class="ph ph-copy"></i> Copiar e Aplicar
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div id="message-box" class="hidden">
   <div id="toast-icon" class="toast-icon"></div>
@@ -1915,16 +2235,20 @@ const DB = {
     ] = await Promise.all([
       db.from('transactions').select('*').order('date', { ascending: false }),
       db.from('recurring_transactions').select('*'),
-      db.from('budgets').select('*')
+      db.from('budgets').select('month_key,category_id,amount')
     ]);
 
     if (txErr)  throw txErr;
     if (recErr) throw recErr;
     if (budErr) throw budErr;
 
-    // Orçamentos: converte array [{category_id, amount}] → objeto { id: valor }
+    // Orçamentos: converte array [{month_key, category_id, amount}] → objeto { "YYYY-MM": { cat_id: valor } }
     const budgets = {};
-    (buds || []).forEach(b => { budgets[b.category_id] = Number(b.amount); });
+    (buds || []).forEach(b => {
+      const mk = b.month_key || 'legacy';
+      if (!budgets[mk]) budgets[mk] = {};
+      budgets[mk][b.category_id] = Number(b.amount);
+    });
 
     appModules.state.setState({
       categories: cats || state.categories,
@@ -1989,11 +2313,17 @@ const DB = {
     if (error) throw error;
   },
 
-  // ---- Orçamentos ----
+  // ---- Orçamentos ---- (budgets = { "YYYY-MM": { cat_id: amount } })
   async saveBudgets(budgets) {
-    const rows = Object.entries(budgets).map(([category_id, amount]) => ({ category_id, amount }));
+    // Flatten to rows: { month_key, category_id, amount }
+    const rows = [];
+    Object.entries(budgets).forEach(([monthKey, monthData]) => {
+      Object.entries(monthData).forEach(([category_id, amount]) => {
+        rows.push({ month_key: monthKey, category_id, amount: amount || 0 });
+      });
+    });
     if (rows.length === 0) return;
-    const { error } = await db.from('budgets').upsert(rows, { onConflict: 'category_id' });
+    const { error } = await db.from('budgets').upsert(rows, { onConflict: 'month_key,category_id' });
     if (error) throw error;
   }
 };
@@ -2148,6 +2478,9 @@ const appModules = {
       this.updateMonthDisplay();
       this.renderDashboard();
       this.renderTransactions();
+      // Re-render budgets if tab is open
+      const budgetTab = document.getElementById('tab-budgets');
+      if (budgetTab && budgetTab.classList.contains('active')) this.renderBudgets();
     },
 
     updateMonthDisplay() {
@@ -2189,15 +2522,103 @@ const appModules = {
       });
       this.renderChart(labels, data, bgColors);
       this.renderBudgetProgress(catTotals, state);
+      this.renderBudgetSummary(catTotals, state);
+    },
+
+    renderBudgetSummary(catTotals, state) {
+      const card = document.getElementById('dashboard-budget-summary');
+      const rows = document.getElementById('dash-budget-rows');
+      const total = document.getElementById('dash-budget-total');
+      const monthEl = document.getElementById('dash-budget-month');
+      if (!card || !rows) return;
+
+      const monthBudgets = appModules.budgets.currentMonthBudgets();
+      const months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+      if (monthEl) monthEl.innerText = months[state.currentDate.getMonth()] + ' ' + state.currentDate.getFullYear();
+
+      // Only show if any budget is configured
+      const hasAnyLimit = Object.values(monthBudgets).some(v => v > 0);
+      if (!hasAnyLimit) { card.style.display = 'none'; return; }
+      card.style.display = 'block';
+
+      let totalSpent = 0, totalLimit = 0;
+      const catsWithLimit = state.categories.filter(c => c.type === 'expense' && monthBudgets[c.id] > 0);
+
+      rows.innerHTML = catsWithLimit.map(cat => {
+        const spent = catTotals[cat.id] || 0;
+        const limit = monthBudgets[cat.id] || 0;
+        const over  = spent > limit;
+        const pct   = limit > 0 ? Math.min(Math.round((spent / limit) * 100), 999) : 0;
+        totalSpent += spent;
+        totalLimit += limit;
+        return `
+          <div class="budget-summary-row">
+            <span style="display:flex;align-items:center;gap:7px">
+              <span style="width:8px;height:8px;border-radius:50%;background:${cat.color};display:inline-block"></span>
+              ${cat.name}
+            </span>
+            <span style="display:flex;align-items:center;gap:8px">
+              <span style="color:${over ? 'var(--red)' : 'var(--text-soft)'};font-variant-numeric:tabular-nums">
+                ${Utils.formatCurrency(spent)} / ${Utils.formatCurrency(limit)}
+              </span>
+              <span style="font-size:11px;font-weight:600;padding:1px 6px;border-radius:5px;background:${over ? 'var(--red-muted)' : 'var(--surface2)'};color:${over ? 'var(--red)' : 'var(--text-muted)'}">
+                ${pct}%
+              </span>
+            </span>
+          </div>`;
+      }).join('');
+
+      const overTotal = totalSpent > totalLimit;
+      if (total) {
+        total.innerHTML = `<span style="color:${overTotal ? 'var(--red)' : 'var(--green)'}; font-variant-numeric:tabular-nums">
+          ${Utils.formatCurrency(totalSpent)} / ${Utils.formatCurrency(totalLimit)}
+        </span>`;
+      }
+
+      // ---- TOTAL CARD: soma gasto vs limite do mês ----
+      // Inclui TODOS os gastos do mês, mesmo sem limite configurado
+      const prefix = Utils.getMonthYearStr(state.currentDate);
+      const allMonthExpenses = state.transactions
+        .filter(t => t.type === 'expense' && Utils.effectiveDate(t).startsWith(prefix))
+        .reduce((s, t) => s + t.amount, 0);
+
+      const totalCard = document.getElementById('dashboard-budget-total-card');
+      const elSpent   = document.getElementById('dash-total-spent');
+      const elLimit   = document.getElementById('dash-total-limit');
+      const elPct     = document.getElementById('dash-total-pct');
+      const elBar     = document.getElementById('dash-total-bar');
+      const elRemain  = document.getElementById('dash-total-remaining');
+
+      if (totalCard && totalLimit > 0) {
+        totalCard.style.display = 'flex';
+        const pct      = Math.min((allMonthExpenses / totalLimit) * 100, 100);
+        const over     = allMonthExpenses > totalLimit;
+        const remain   = totalLimit - allMonthExpenses;
+        const barColor = over ? 'var(--red)' : pct >= 80 ? 'var(--gold)' : 'var(--green)';
+
+        if (elSpent)  { elSpent.innerText  = Utils.formatCurrency(allMonthExpenses); elSpent.style.color = over ? 'var(--red)' : 'var(--text)'; }
+        if (elLimit)  elLimit.innerText  = Utils.formatCurrency(totalLimit);
+        if (elPct)    { elPct.innerText   = Math.round(pct) + '%'; elPct.style.color = over ? 'var(--red)' : 'var(--text-muted)'; }
+        if (elBar)    { elBar.style.width = pct + '%'; elBar.style.background = barColor; }
+        if (elRemain) {
+          elRemain.innerText  = over
+            ? `⚠️ Ultrapassou ${Utils.formatCurrency(Math.abs(remain))} do limite`
+            : `Restam ${Utils.formatCurrency(remain)} do limite`;
+          elRemain.style.color = over ? 'var(--red)' : 'var(--text-muted)';
+        }
+      } else if (totalCard) {
+        totalCard.style.display = 'none';
+      }
     },
 
     renderBudgetProgress(catTotals, state) {
       const list = document.getElementById('budget-progress-list');
       if (!list) return;
 
+      const monthBudgets = appModules.budgets.currentMonthBudgets();
       const expCats = state.categories.filter(c => c.type === 'expense');
       // Mostra categorias que têm limite OU têm gastos no mês
-      const visible = expCats.filter(c => state.budgets[c.id] || catTotals[c.id]);
+      const visible = expCats.filter(c => monthBudgets[c.id] || catTotals[c.id]);
 
       if (visible.length === 0) {
         list.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">Configure limites na aba <strong>Limites</strong> ou registre gastos.</p>';
@@ -2206,7 +2627,7 @@ const appModules = {
 
       list.innerHTML = visible.map(cat => {
         const spent = catTotals[cat.id] || 0;
-        const limit = state.budgets[cat.id] || 0;
+        const limit = monthBudgets[cat.id] || 0;
         const hasLimit = limit > 0;
         const pct = hasLimit ? Math.min((spent / limit) * 100, 100) : 0;
         const overBudget = hasLimit && spent > limit;
@@ -2367,12 +2788,17 @@ const appModules = {
     },
 
     renderBudgets() {
-      const state = appModules.state.getState();
-      const list = document.getElementById('budget-list');
+      const state  = appModules.state.getState();
+      const list   = document.getElementById('budget-list');
+      const monthLabel = document.getElementById('budget-month-name');
       if (!list) return;
       list.innerHTML = '';
+
+      const monthBudgets = appModules.budgets.currentMonthBudgets();
+      if (monthLabel) monthLabel.innerText = appModules.budgets._monthLabel();
+
       state.categories.filter(c => c.type === 'expense').forEach(cat => {
-        const current = state.budgets[cat.id] || 0;
+        const current = monthBudgets[cat.id] || 0;
         list.innerHTML += `
           <div class="budget-item">
             <div class="budget-cat-icon" style="background:${cat.color}18;color:${cat.color}">
@@ -2381,7 +2807,7 @@ const appModules = {
             <span class="budget-cat-name">${cat.name}</span>
             <div class="budget-input-wrap">
               <span>R$</span>
-              <input type="number" step="10" value="${current}" data-category="${cat.id}" class="budget-input">
+              <input type="number" step="10" value="${current > 0 ? current : ''}" data-category="${cat.id}" class="budget-input" placeholder="0">
             </div>
           </div>`;
       });
@@ -2674,22 +3100,105 @@ const appModules = {
   },
 
   budgets: {
+    // Returns "YYYY-MM" key for budgets storage
+    _monthKey(date) {
+      return Utils.getMonthYearStr(date || appModules.state.getState().currentDate);
+    },
+
     async save() {
-      const state   = appModules.state.getState();
-      const budgets = { ...state.budgets };
+      const state  = appModules.state.getState();
+      const mk     = this._monthKey();
+      const monthBudgets = { ...(state.budgets[mk] || {}) };
 
       document.querySelectorAll('[data-category]').forEach(input => {
-        budgets[input.dataset.category] = parseFloat(input.value) || 0;
+        monthBudgets[input.dataset.category] = parseFloat(input.value) || 0;
       });
 
+      // budgets is now { "2026-05": { cat_1: 500, ... }, "2026-06": {...} }
+      const allBudgets = { ...state.budgets, [mk]: monthBudgets };
+
       try {
-        await DB.saveBudgets(budgets);
-        appModules.state.setState({ budgets });
-        appModules.ui.showMessage('Sucesso', 'Limites salvos!');
+        await DB.saveBudgets(allBudgets);
+        appModules.state.setState({ budgets: allBudgets });
+        appModules.ui.showMessage('Sucesso', 'Limites de ' + this._monthLabel() + ' salvos!');
       } catch (err) {
         console.error(err);
         appModules.ui.showMessage('Erro', 'Não foi possível salvar limites.', 'error');
       }
+    },
+
+    _monthLabel(date) {
+      const d = date || appModules.state.getState().currentDate;
+      const months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+      return months[d.getMonth()] + ' ' + d.getFullYear();
+    },
+
+    // Returns budgets for current month (falls back to empty)
+    currentMonthBudgets() {
+      const state = appModules.state.getState();
+      const mk = this._monthKey();
+      return state.budgets[mk] || {};
+    },
+
+    copyFromModal() {
+      const state  = appModules.state.getState();
+      const mk     = this._monthKey();
+      const months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+      // Populate available source months (any month that has budgets configured)
+      const select = document.getElementById('copy-budget-source');
+      const dest   = document.getElementById('copy-budget-dest');
+      if (!select || !dest) return;
+
+      dest.innerText = this._monthLabel();
+
+      select.innerHTML = '';
+
+      // Build list of months that have budgets
+      const availableMonths = Object.keys(state.budgets)
+        .filter(k => k !== mk && Object.keys(state.budgets[k] || {}).length > 0)
+        .sort((a, b) => b.localeCompare(a)); // most recent first
+
+      // Always add last 6 months as options even if empty
+      const today = new Date();
+      for (let i = 1; i <= 12; i++) {
+        const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+        const key = Utils.getMonthYearStr(d);
+        if (!availableMonths.includes(key)) availableMonths.push(key);
+      }
+      availableMonths.sort((a, b) => b.localeCompare(a));
+
+      availableMonths.forEach(key => {
+        const [y, m] = key.split('-');
+        const label = months[parseInt(m) - 1] + ' ' + y;
+        const hasBudgets = state.budgets[key] && Object.values(state.budgets[key]).some(v => v > 0);
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.text  = label + (hasBudgets ? ' ✓' : ' (sem limites)');
+        select.appendChild(opt);
+      });
+
+      appModules.modals.open('modal-copy-budget');
+    },
+
+    applyFromMonth() {
+      const state     = appModules.state.getState();
+      const sourceKey = document.getElementById('copy-budget-source').value;
+      const sourceBudgets = state.budgets[sourceKey] || {};
+
+      if (Object.keys(sourceBudgets).length === 0) {
+        appModules.ui.showMessage('Atenção', 'O mês selecionado não tem limites configurados.', 'error');
+        return;
+      }
+
+      // Apply values to current budget inputs
+      document.querySelectorAll('[data-category]').forEach(input => {
+        const val = sourceBudgets[input.dataset.category] || 0;
+        input.value = val > 0 ? val : '';
+      });
+
+      appModules.modals.close('modal-copy-budget');
+      appModules.ui.showMessage('Sucesso', 'Limites copiados! Ajuste e clique em Salvar.');
     }
   },
 
@@ -2773,7 +3282,8 @@ const appModules = {
     },
 
     checkBudgetAlert(categoryId, state) {
-      const limit = state.budgets[categoryId] || 0;
+      const monthBudgets = appModules.budgets.currentMonthBudgets();
+      const limit = monthBudgets[categoryId] || 0;
       if (limit <= 0) return; // sem limite configurado
 
       const prefix = Utils.getMonthYearStr(state.currentDate);
@@ -3016,5 +3526,40 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <button class="mobile-nav-btn active" id="mnav-dashboard" onclick="mobileNav('dashboard')">
+      <i class="ph ph-squares-four"></i>
+      <span class="mobile-nav-label">Início</span>
+    </button>
+    <button class="mobile-nav-btn" id="mnav-transactions" onclick="mobileNav('transactions')">
+      <i class="ph ph-arrows-left-right"></i>
+      <span class="mobile-nav-label">Histórico</span>
+    </button>
+    <button class="mobile-nav-btn" id="mnav-chat" onclick="mobileNav('chat')">
+      <i class="ph ph-robot"></i>
+      <span class="mobile-nav-label">IA</span>
+    </button>
+    <button class="mobile-nav-btn" id="mnav-budgets" onclick="mobileNav('budgets')">
+      <i class="ph ph-target"></i>
+      <span class="mobile-nav-label">Limites</span>
+    </button>
+    <button class="mobile-nav-btn" id="mnav-more" onclick="toggleMobileMore()">
+      <i class="ph ph-dots-three"></i>
+      <span class="mobile-nav-label">Mais</span>
+    </button>
+  </div>
+</nav>
+
+<!-- MOBILE MORE MENU -->
+<div id="mobile-more-menu" class="hidden">
+  <button class="mob-menu-btn" onclick="mobileNav('recurring'); toggleMobileMore()"><i class="ph ph-repeat"></i> Recorrentes</button>
+  <button class="mob-menu-btn" onclick="mobileNav('reports'); toggleMobileMore()"><i class="ph ph-chart-bar"></i> Relatórios</button>
+  <button class="mob-menu-btn" onclick="mobileNav('categories'); toggleMobileMore()"><i class="ph ph-tag"></i> Categorias</button>
+  <button class="mob-menu-btn" onclick="appModules.auth.logout(); toggleMobileMore()"><i class="ph ph-sign-out"></i> Trocar usuário</button>
+</div>
+
 </body>
 </html>
