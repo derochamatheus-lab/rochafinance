@@ -1382,6 +1382,11 @@
     .balance-hero-value { font-size: 34px; }
     /* More menu button in topbar */
     #topbar-more-btn { display: inline-flex !important; }
+    /* Mobile month navigation */
+    .mobile-month-nav { display: flex; align-items: center; gap: 8px; padding: 8px; background: var(--surface2); border-radius: var(--radius-sm); margin-top: 8px; width: 100%; justify-content: center; }
+    .mobile-month-nav button { background: none; border: none; color: var(--text-soft); cursor: pointer; padding: 4px 8px; font-size: 16px; display: flex; align-items: center; transition: color 0.15s; }
+    .mobile-month-nav button:hover { color: var(--accent); }
+    .mobile-month-nav span { font-size: 12px; font-weight: 500; color: var(--text); min-width: 120px; text-align: center; }
   }
 
   /* Mobile more menu */
@@ -1691,6 +1696,12 @@
         <button class="btn btn-primary" onclick="appModules.transactions.openModal()">
           <i class="ph ph-plus"></i> Nova Transação
         </button>
+      </div>
+      <!-- Mobile Month Navigation -->
+      <div class="mobile-month-nav" id="mobile-month-nav" style="display:none">
+        <button onclick="appModules.navigation.changeMonth(-1)"><i class="ph ph-caret-left"></i></button>
+        <span id="mobile-current-month">Maio 2026</span>
+        <button onclick="appModules.navigation.changeMonth(1)"><i class="ph ph-caret-right"></i></button>
       </div>
     </div>
 
@@ -2481,6 +2492,13 @@ const appModules = {
       const titleEl = document.getElementById('current-view-title');
       if (titleEl) titleEl.innerText = titles[tabId] || 'Rocha Finance';
 
+      // Mostrar navegação de meses no mobile para abas que usam filtro de mês
+      const mobileMonthNav = document.getElementById('mobile-month-nav');
+      if (mobileMonthNav) {
+        const showMonthNav = ['dashboard', 'transactions', 'budgets'].includes(tabId);
+        mobileMonthNav.style.display = showMonthNav ? 'flex' : 'none';
+      }
+
       if (tabId === 'dashboard')    this.renderDashboard();
       if (tabId === 'transactions') this.renderTransactions();
       if (tabId === 'recurring')    this.renderRecurring();
@@ -2505,8 +2523,11 @@ const appModules = {
     updateMonthDisplay() {
       const state = appModules.state.getState();
       const months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+      const monthStr = `${months[state.currentDate.getMonth()]} ${state.currentDate.getFullYear()}`;
       const el = document.getElementById('current-month-display');
-      if (el) el.innerText = `${months[state.currentDate.getMonth()]} ${state.currentDate.getFullYear()}`;
+      if (el) el.innerText = monthStr;
+      const mobileEl = document.getElementById('mobile-current-month');
+      if (mobileEl) mobileEl.innerText = monthStr;
     },
 
     renderDashboard() {
@@ -2707,6 +2728,8 @@ const appModules = {
       list.innerHTML = '';
 
       const freqLabel = { weekly:'Semanal', biweekly:'Quinzenal', monthly:'Mensal', quarterly:'Trimestral', yearly:'Anual' };
+      // Usar o mês selecionado na navegação, não o mês atual
+      const selectedMonthKey = Utils.getMonthYearStr(state.currentDate);
       const active = state.recurringTransactions.filter(r => r.active);
 
       // Totals
@@ -2724,13 +2747,31 @@ const appModules = {
         return;
       }
 
-      state.recurringTransactions.forEach(rec => {
+      // Filtrar recorrentes que ainda são válidas para o mês selecionado
+      const validRecurrings = state.recurringTransactions.filter(rec => {
+        // Se não tem data de encerramento, é válida
+        if (!rec.endDate) return true;
+        // Se tem data de encerramento, só mostrar se o mês selecionado é anterior ou igual ao mês de vencimento
+        const recEndMonthKey = Utils.getMonthYearStr(new Date(rec.endDate));
+        return selectedMonthKey <= recEndMonthKey;
+      });
+
+      validRecurrings.forEach(rec => {
         const cat   = Utils.getCategory(rec.categoryId, state.categories);
         const isInc = rec.type === 'income';
         const freq  = freqLabel[rec.frequency] || rec.frequency;
         const endInfo = rec.endDate ? `<span style="color:var(--text-muted)"> · Até ${Utils.formatDate(rec.endDate)}</span>` : '';
         const dueInfo = rec.dueDay  ? `<span style="color:var(--text-muted)"> · Venc. dia ${rec.dueDay}</span>` : '';
         const isExpired = rec.endDate && rec.endDate < Utils.today();
+        
+        // Verificar se já foi lançada no mês selecionado
+        const alreadyLaunched = state.transactions.some(tx => 
+          tx.source === 'recurring' && 
+          tx.description === rec.description &&
+          Utils.getMonthYearStr(new Date(Utils.effectiveDate(tx))) === selectedMonthKey
+        );
+        
+        const launchedBadge = alreadyLaunched ? '<span style="font-size:10px;background:var(--green-muted);color:var(--green);padding:1px 6px;border-radius:4px;font-weight:600;margin-left:6px"><i class="ph ph-check-circle" style="font-size:9px;margin-right:2px"></i>Lançada</span>' : '';
 
         list.innerHTML += `
           <div class="rec-item" style="${isExpired ? 'opacity:0.5' : ''}">
@@ -2738,6 +2779,7 @@ const appModules = {
               <h4 style="display:flex;align-items:center;gap:6px">
                 ${rec.description}
                 ${isExpired ? '<span style="font-size:10px;background:var(--red-muted);color:var(--red);padding:1px 6px;border-radius:4px;font-weight:600">Encerrado</span>' : ''}
+                ${launchedBadge}
               </h4>
               <p>
                 <i class="ph ph-repeat"></i> ${freq}${dueInfo}${endInfo}
@@ -2748,7 +2790,7 @@ const appModules = {
               <div class="rec-amount ${isInc ? 'income' : 'expense'}">${isInc ? '+' : '-'}${Utils.formatCurrency(rec.amount)}</div>
             </div>
             <div style="display:flex;flex-direction:column;gap:4px">
-              <button class="icon-btn" title="Lançar agora" onclick="appModules.recurring.generateTransaction('${rec.id}')">
+              <button class="icon-btn" title="${alreadyLaunched ? 'Já lançada neste mês' : 'Lançar agora'}" onclick="appModules.recurring.generateTransaction('${rec.id}')" ${alreadyLaunched ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>
                 <i class="ph ph-paper-plane-tilt"></i>
               </button>
               <button class="icon-btn" title="Editar" onclick="appModules.recurring.editModal('${rec.id}')">
@@ -3130,13 +3172,41 @@ const appModules = {
       const rec   = state.recurringTransactions.find(r => r.id === id);
       if (!rec) return;
 
-      // Use due day if set, otherwise today
-      let dateStr = Utils.today();
+      // Usar o mês selecionado na navegação
+      const selectedMonthKey = Utils.getMonthYearStr(state.currentDate);
+      const selectedDate = new Date(state.currentDate);
+
+      // Verificar se a recorrente já expirou no mês selecionado
+      if (rec.endDate) {
+        const recEndMonthKey = Utils.getMonthYearStr(new Date(rec.endDate));
+        if (selectedMonthKey > recEndMonthKey) {
+          appModules.ui.showMessage('Atenção', 'Esta recorrente já expirou e não pode ser lançada neste mês.', 'error');
+          return;
+        }
+      }
+
+      // Usar dia de vencimento se definido, senão usar o primeiro dia do mês selecionado
+      let dateStr;
       if (rec.dueDay) {
-        const d = new Date();
-        const day = Math.min(rec.dueDay, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate());
+        const d = new Date(selectedDate);
+        const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+        const day = Math.min(rec.dueDay, lastDay);
         d.setDate(day);
         dateStr = d.toISOString().split('T')[0];
+      } else {
+        dateStr = selectedDate.toISOString().split('T')[0];
+      }
+
+      // Verificar se já foi lançada no mês selecionado
+      const alreadyLaunched = state.transactions.some(tx => 
+        tx.source === 'recurring' && 
+        tx.description === rec.description &&
+        Utils.getMonthYearStr(new Date(Utils.effectiveDate(tx))) === selectedMonthKey
+      );
+
+      if (alreadyLaunched) {
+        appModules.ui.showMessage('Atenção', 'Esta recorrente já foi lançada em ' + selectedDate.toLocaleString('pt-BR', {month: 'long', year: 'numeric'}) + '!', 'error');
+        return;
       }
 
       const tx = {
@@ -3156,6 +3226,7 @@ const appModules = {
         appModules.state.setState(state);
         appModules.navigation.renderDashboard();
         appModules.navigation.renderTransactions();
+        appModules.navigation.renderRecurring();
         appModules.ui.showMessage('Sucesso', `"${rec.description}" lançado em ${Utils.formatDate(dateStr)}!`);
       } catch (err) {
         console.error(err);
