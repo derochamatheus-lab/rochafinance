@@ -2324,6 +2324,8 @@ const DB = {
       type: rec.type,
       start_date: rec.startDate,
       next_date: rec.nextDate,
+      end_date: rec.endDate || null,
+      due_day: rec.dueDay || null,
       active: rec.active
     });
     if (error) throw error;
@@ -2495,7 +2497,7 @@ const appModules = {
       // Mostrar navegação de meses no mobile para abas que usam filtro de mês
       const mobileMonthNav = document.getElementById('mobile-month-nav');
       if (mobileMonthNav) {
-        const showMonthNav = ['dashboard', 'transactions', 'budgets'].includes(tabId);
+        const showMonthNav = ['dashboard', 'transactions', 'budgets', 'recurring'].includes(tabId);
         mobileMonthNav.style.display = showMonthNav ? 'flex' : 'none';
       }
 
@@ -2518,6 +2520,10 @@ const appModules = {
       // Re-render budgets if tab is open
       const budgetTab = document.getElementById('tab-budgets');
       if (budgetTab && budgetTab.classList.contains('active')) this.renderBudgets();
+      
+      // Re-render recurring if tab is open
+      const recurringTab = document.getElementById('tab-recurring');
+      if (recurringTab && recurringTab.classList.contains('active')) this.renderRecurring();
     },
 
     updateMonthDisplay() {
@@ -3188,7 +3194,7 @@ const appModules = {
       // Usar dia de vencimento se definido, senão usar o primeiro dia do mês selecionado
       let dateStr;
       if (rec.dueDay) {
-        const d = new Date(selectedDate);
+        const d = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
         const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
         const day = Math.min(rec.dueDay, lastDay);
         d.setDate(day);
@@ -3214,19 +3220,27 @@ const appModules = {
         description: rec.description,
         amount:      rec.amount,
         date:        dateStr,
+        paymentDate: dateStr,
         categoryId:  rec.categoryId,
         type:        rec.type,
         source:      'recurring',
+        insertedBy:  UserAuth.getCurrentUser(),
         createdAt:   new Date().toISOString()
       };
 
       try {
         await DB.upsertTransaction(tx);
-        state.transactions.push(tx);
-        appModules.state.setState(state);
+        
+        // Atualizar estado local
+        const currentTransactions = [...state.transactions];
+        currentTransactions.unshift(tx);
+        appModules.state.setState({ transactions: currentTransactions });
+        
+        // Forçar re-renderização de todas as abas relevantes
         appModules.navigation.renderDashboard();
         appModules.navigation.renderTransactions();
         appModules.navigation.renderRecurring();
+        
         appModules.ui.showMessage('Sucesso', `"${rec.description}" lançado em ${Utils.formatDate(dateStr)}!`);
       } catch (err) {
         console.error(err);
