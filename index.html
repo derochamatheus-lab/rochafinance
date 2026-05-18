@@ -1707,35 +1707,7 @@
           </div>
         </div>
 
-        <!-- BUDGET TOTAL CARD: soma gasto vs limite do mês -->
-        <div class="budget-total-card" id="dashboard-budget-total-card" style="display:none">
-          <div class="budget-total-left">
-            <div class="budget-total-label"><i class="ph ph-coins"></i> Gasto Total vs Limite do Mês</div>
-            <div class="budget-total-values">
-              <span class="budget-total-spent" id="dash-total-spent">R$ 0</span>
-              <span class="budget-total-limit">/ <span id="dash-total-limit">R$ 0</span></span>
-            </div>
-            <div class="budget-total-remaining" id="dash-total-remaining"></div>
-          </div>
-          <div class="budget-total-right">
-            <div class="budget-total-pct" id="dash-total-pct">0%</div>
-            <div class="budget-total-bar-wrap">
-              <div class="budget-total-bar-bg">
-                <div class="budget-total-bar-fill" id="dash-total-bar" style="width:0%"></div>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <!-- BUDGET SUMMARY TOTALIZER -->
-        <div class="budget-summary-card" id="dashboard-budget-summary" style="display:none">
-          <div class="budget-summary-title"><i class="ph ph-target"></i> Resumo de Limites — <span id="dash-budget-month">—</span></div>
-          <div id="dash-budget-rows"></div>
-          <div class="budget-summary-total">
-            <span style="color:var(--text-soft)">Total Gasto / Limite Total</span>
-            <span id="dash-budget-total" style="font-variant-numeric:tabular-nums">—</span>
-          </div>
-        </div>
 
         <div class="grid-2">
           <div class="chart-card">
@@ -1750,10 +1722,19 @@
           </div>
 
           <div style="display:flex;flex-direction:column;gap:16px">
-            <div class="card">
-              <div class="section-title" style="margin-bottom:14px"><i class="ph ph-target"></i> Limite vs. Gasto por Categoria</div>
-              <div id="budget-progress-list">
-                <p style="font-size:13px;color:var(--text-muted)">Configure limites na aba <strong>Limites</strong>.</p>
+            <div class="card" id="budget-progress-card">
+              <div class="section-title" style="margin-bottom:0;cursor:pointer;display:flex;align-items:center;justify-content:space-between" onclick="toggleBudgetCard()">
+                <span><i class="ph ph-target"></i> Limite vs. Gasto por Categoria</span>
+                <i class="ph ph-caret-up" id="budget-card-caret" style="font-size:14px;color:var(--text-muted);transition:transform 0.25s"></i>
+              </div>
+              <div id="budget-card-body" style="margin-top:14px">
+                <div id="budget-progress-list">
+                  <p style="font-size:13px;color:var(--text-muted)">Configure limites na aba <strong>Limites</strong>.</p>
+                </div>
+                <div id="budget-progress-total" style="display:none;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);justify-content:space-between;align-items:center;font-size:13px;font-weight:600">
+                  <span style="color:var(--text-soft)">Total Gasto / Limite Total</span>
+                  <span id="budget-progress-total-val" style="font-variant-numeric:tabular-nums">—</span>
+                </div>
               </div>
             </div>
             <div class="card" style="display:flex;flex-direction:column;gap:12px">
@@ -1847,6 +1828,21 @@
 
       <!-- RECURRING -->
       <div id="tab-recurring" class="tab-content">
+        <!-- Totalizer -->
+        <div id="recurring-totals" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+          <div class="report-card">
+            <div class="report-card-title"><i class="ph ph-arrow-down-right"></i> Total Saídas/mês</div>
+            <div class="report-card-value" id="rec-total-expense" style="color:var(--red)">R$ 0,00</div>
+          </div>
+          <div class="report-card">
+            <div class="report-card-title"><i class="ph ph-arrow-up-right"></i> Total Entradas/mês</div>
+            <div class="report-card-value" id="rec-total-income" style="color:var(--green)">R$ 0,00</div>
+          </div>
+          <div class="report-card">
+            <div class="report-card-title"><i class="ph ph-list-numbers"></i> Qtd. Ativas</div>
+            <div class="report-card-value" id="rec-total-count">0</div>
+          </div>
+        </div>
         <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
           <button class="btn btn-primary" onclick="appModules.recurring.openModal()">
             <i class="ph ph-plus"></i> Adicionar Recorrente
@@ -1881,9 +1877,14 @@
           <p style="font-size:13px;color:var(--text-soft);line-height:1.6">
             Para análises mais detalhadas, exporte seus dados em CSV e use ferramentas como Excel ou Google Sheets para criar seus próprios gráficos e relatórios personalizados.
           </p>
-          <button class="btn btn-ghost" style="margin-top:14px" onclick="ExportImportModule.exportToCSV(appModules.state.getState().transactions, appModules.state.getState().categories)">
-            <i class="ph ph-download-simple"></i> Exportar CSV
-          </button>
+          <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+            <button class="btn btn-ghost" onclick="ExportImportModule.exportToCSV(appModules.state.getState().transactions, appModules.state.getState().categories, 'expense')">
+              <i class="ph ph-download-simple"></i> CSV Saídas
+            </button>
+            <button class="btn btn-ghost" onclick="ExportImportModule.exportToCSV(appModules.state.getState().transactions, appModules.state.getState().categories, 'income')">
+              <i class="ph ph-download-simple"></i> CSV Entradas
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1990,10 +1991,11 @@
 <div id="modal-recurring" class="modal-overlay hidden">
   <div class="modal-box">
     <div class="modal-header">
-      <h2 class="modal-title">Nova Recorrente</h2>
+      <h2 class="modal-title" id="rec-modal-title">Nova Recorrente</h2>
       <button class="modal-close" onclick="appModules.modals.close('modal-recurring')"><i class="ph ph-x"></i></button>
     </div>
     <div class="modal-body">
+      <input type="hidden" id="rec-edit-id">
       <div class="form-group">
         <label class="form-label">Descrição</label>
         <input id="rec-desc" class="form-input" placeholder="Ex: Netflix, Aluguel...">
@@ -2001,7 +2003,7 @@
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div class="form-group">
           <label class="form-label">Valor</label>
-          <input id="rec-amount" class="form-input" placeholder="0,00" type="number" step="0.01">
+          <input id="rec-amount" class="form-input" placeholder="0,00" type="number" step="0.01" min="0.01">
         </div>
         <div class="form-group">
           <label class="form-label">Frequência</label>
@@ -2017,6 +2019,20 @@
       <div class="form-group">
         <label class="form-label">Categoria</label>
         <select id="rec-category" class="form-select"></select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group">
+          <label class="form-label">Data de Início</label>
+          <input id="rec-start-date" class="form-input" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Dia de Vencimento</label>
+          <input id="rec-due-day" class="form-input" type="number" min="1" max="31" placeholder="Ex: 10">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Encerra em (deixe vazio para sem fim)</label>
+        <input id="rec-end-date" class="form-input" type="date">
       </div>
     </div>
     <div class="modal-footer">
@@ -2209,6 +2225,8 @@ const DB = {
     type: r.type,
     startDate: r.start_date,
     nextDate: r.next_date,
+    endDate: r.end_date || null,
+    dueDay: r.due_day || null,
     active: r.active
   }),
 
@@ -2280,6 +2298,11 @@ const DB = {
   },
 
   // ---- Recorrentes ----
+  async deleteRecurring(id) {
+    const { error } = await db.from('recurring_transactions').delete().eq('id', id);
+    if (error) throw error;
+  },
+
   async upsertRecurring(rec) {
     const { error } = await db.from('recurring_transactions').upsert({
       id: rec.id,
@@ -2397,30 +2420,26 @@ const NLPModule = {
 // 5. EXPORT MODULE — separador ponto-e-vírgula, BOM UTF-8
 // ============================================================
 const ExportImportModule = {
-  exportToCSV(transactions, categories) {
-    const SEP = ';';
-    const BOM = '\uFEFF';
-    const esc = v => `"${String(v).replace(/"/g, '""')}"`;
+  exportToCSV(transactions, categories, tipo = 'all') {
+    const SEP  = ';';
+    const BOM  = '\uFEFF';
+    const esc  = v => `"${String(v).replace(/"/g, '""')}"`;
+    const list = tipo === 'all' ? transactions : transactions.filter(t => t.type === tipo);
+    const label = tipo === 'income' ? 'entradas' : tipo === 'expense' ? 'saidas' : 'financeiro';
+
     let csv = BOM + ['Data Lançamento','Data Pagamento','Descrição','Categoria','Tipo','Valor (R$)','Inserido Por'].join(SEP) + '\n';
-    transactions.forEach(tx => {
-      const cat   = Utils.getCategory(tx.categoryId, categories);
-      const value = tx.type === 'income' ? tx.amount : -tx.amount;
-      const tipo  = tx.type === 'income' ? 'Entrada' : 'Saída';
-      const pgto  = tx.paymentDate ? Utils.formatDate(tx.paymentDate) : '';
-      const user  = tx.insertedBy ? (UserAuth.USERS[tx.insertedBy]?.name || tx.insertedBy) : '';
-      csv += [
-        Utils.formatDate(tx.date),
-        pgto,
-        esc(tx.description),
-        esc(cat.name),
-        tipo,
-        value.toFixed(2).replace('.', ','),
-        user
-      ].join(SEP) + '\n';
+    list.forEach(tx => {
+      const cat  = Utils.getCategory(tx.categoryId, categories);
+      const val  = tx.amount.toFixed(2).replace('.', ',');
+      const pgto = tx.paymentDate ? Utils.formatDate(tx.paymentDate) : '';
+      const user = tx.insertedBy ? (UserAuth.USERS[tx.insertedBy]?.name || tx.insertedBy) : '';
+      const tp   = tx.type === 'income' ? 'Entrada' : 'Saída';
+      csv += [Utils.formatDate(tx.date), pgto, esc(tx.description), esc(cat.name), tp, val, user].join(SEP) + '\n';
     });
+
     const a = document.createElement('a');
     a.href = `data:text/csv;charset=utf-8,${encodeURIComponent(csv)}`;
-    a.download = 'financeiro.csv';
+    a.download = `${label}.csv`;
     a.click();
   }
 };
@@ -2526,90 +2545,9 @@ const appModules = {
     },
 
     renderBudgetSummary(catTotals, state) {
-      const card = document.getElementById('dashboard-budget-summary');
-      const rows = document.getElementById('dash-budget-rows');
-      const total = document.getElementById('dash-budget-total');
-      const monthEl = document.getElementById('dash-budget-month');
-      if (!card || !rows) return;
-
-      const monthBudgets = appModules.budgets.currentMonthBudgets();
-      const months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-      if (monthEl) monthEl.innerText = months[state.currentDate.getMonth()] + ' ' + state.currentDate.getFullYear();
-
-      // Only show if any budget is configured
-      const hasAnyLimit = Object.values(monthBudgets).some(v => v > 0);
-      if (!hasAnyLimit) { card.style.display = 'none'; return; }
-      card.style.display = 'block';
-
-      let totalSpent = 0, totalLimit = 0;
-      const catsWithLimit = state.categories.filter(c => c.type === 'expense' && monthBudgets[c.id] > 0);
-
-      rows.innerHTML = catsWithLimit.map(cat => {
-        const spent = catTotals[cat.id] || 0;
-        const limit = monthBudgets[cat.id] || 0;
-        const over  = spent > limit;
-        const pct   = limit > 0 ? Math.min(Math.round((spent / limit) * 100), 999) : 0;
-        totalSpent += spent;
-        totalLimit += limit;
-        return `
-          <div class="budget-summary-row">
-            <span style="display:flex;align-items:center;gap:7px">
-              <span style="width:8px;height:8px;border-radius:50%;background:${cat.color};display:inline-block"></span>
-              ${cat.name}
-            </span>
-            <span style="display:flex;align-items:center;gap:8px">
-              <span style="color:${over ? 'var(--red)' : 'var(--text-soft)'};font-variant-numeric:tabular-nums">
-                ${Utils.formatCurrency(spent)} / ${Utils.formatCurrency(limit)}
-              </span>
-              <span style="font-size:11px;font-weight:600;padding:1px 6px;border-radius:5px;background:${over ? 'var(--red-muted)' : 'var(--surface2)'};color:${over ? 'var(--red)' : 'var(--text-muted)'}">
-                ${pct}%
-              </span>
-            </span>
-          </div>`;
-      }).join('');
-
-      const overTotal = totalSpent > totalLimit;
-      if (total) {
-        total.innerHTML = `<span style="color:${overTotal ? 'var(--red)' : 'var(--green)'}; font-variant-numeric:tabular-nums">
-          ${Utils.formatCurrency(totalSpent)} / ${Utils.formatCurrency(totalLimit)}
-        </span>`;
-      }
-
-      // ---- TOTAL CARD: soma gasto vs limite do mês ----
-      // Inclui TODOS os gastos do mês, mesmo sem limite configurado
-      const prefix = Utils.getMonthYearStr(state.currentDate);
-      const allMonthExpenses = state.transactions
-        .filter(t => t.type === 'expense' && Utils.effectiveDate(t).startsWith(prefix))
-        .reduce((s, t) => s + t.amount, 0);
-
-      const totalCard = document.getElementById('dashboard-budget-total-card');
-      const elSpent   = document.getElementById('dash-total-spent');
-      const elLimit   = document.getElementById('dash-total-limit');
-      const elPct     = document.getElementById('dash-total-pct');
-      const elBar     = document.getElementById('dash-total-bar');
-      const elRemain  = document.getElementById('dash-total-remaining');
-
-      if (totalCard && totalLimit > 0) {
-        totalCard.style.display = 'flex';
-        const pct      = Math.min((allMonthExpenses / totalLimit) * 100, 100);
-        const over     = allMonthExpenses > totalLimit;
-        const remain   = totalLimit - allMonthExpenses;
-        const barColor = over ? 'var(--red)' : pct >= 80 ? 'var(--gold)' : 'var(--green)';
-
-        if (elSpent)  { elSpent.innerText  = Utils.formatCurrency(allMonthExpenses); elSpent.style.color = over ? 'var(--red)' : 'var(--text)'; }
-        if (elLimit)  elLimit.innerText  = Utils.formatCurrency(totalLimit);
-        if (elPct)    { elPct.innerText   = Math.round(pct) + '%'; elPct.style.color = over ? 'var(--red)' : 'var(--text-muted)'; }
-        if (elBar)    { elBar.style.width = pct + '%'; elBar.style.background = barColor; }
-        if (elRemain) {
-          elRemain.innerText  = over
-            ? `⚠️ Ultrapassou ${Utils.formatCurrency(Math.abs(remain))} do limite`
-            : `Restam ${Utils.formatCurrency(remain)} do limite`;
-          elRemain.style.color = over ? 'var(--red)' : 'var(--text-muted)';
-        }
-      } else if (totalCard) {
-        totalCard.style.display = 'none';
-      }
+      // Now handled inside renderBudgetProgress total footer
     },
+
 
     renderBudgetProgress(catTotals, state) {
       const list = document.getElementById('budget-progress-list');
@@ -2617,13 +2555,16 @@ const appModules = {
 
       const monthBudgets = appModules.budgets.currentMonthBudgets();
       const expCats = state.categories.filter(c => c.type === 'expense');
-      // Mostra categorias que têm limite OU têm gastos no mês
       const visible = expCats.filter(c => monthBudgets[c.id] || catTotals[c.id]);
 
       if (visible.length === 0) {
         list.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">Configure limites na aba <strong>Limites</strong> ou registre gastos.</p>';
+        const tf = document.getElementById('budget-progress-total');
+        if (tf) tf.style.display = 'none';
         return;
       }
+
+      let totalSpent = 0, totalLimit = 0;
 
       list.innerHTML = visible.map(cat => {
         const spent = catTotals[cat.id] || 0;
@@ -2636,7 +2577,7 @@ const appModules = {
         const pctLabel   = hasLimit ? `${Math.round(pct)}%` : '';
         const pctBg      = overBudget ? 'var(--red-muted)' : nearLimit ? '#f5c84222' : cat.color + '22';
         const pctFg      = overBudget ? 'var(--red)' : nearLimit ? 'var(--gold)' : cat.color;
-
+        if (hasLimit) { totalSpent += spent; totalLimit += limit; }
         return `
           <div class="budget-progress-row">
             <div class="budget-progress-meta">
@@ -2656,6 +2597,17 @@ const appModules = {
             </div>` : ''}
           </div>`;
       }).join('');
+
+      // Total footer inside the card
+      const tf  = document.getElementById('budget-progress-total');
+      const tfv = document.getElementById('budget-progress-total-val');
+      if (tf && totalLimit > 0) {
+        tf.style.display = 'flex';
+        const over = totalSpent > totalLimit;
+        if (tfv) tfv.innerHTML = `<span style="color:${over ? 'var(--red)' : 'var(--green)'}; font-variant-numeric:tabular-nums">${Utils.formatCurrency(totalSpent)} / ${Utils.formatCurrency(totalLimit)}</span>`;
+      } else if (tf) {
+        tf.style.display = 'none';
+      }
     },
 
     renderChart(labels, data, bgColors) {
@@ -2750,9 +2702,22 @@ const appModules = {
 
     renderRecurring() {
       const state = appModules.state.getState();
-      const list = document.getElementById('recurring-list');
+      const list  = document.getElementById('recurring-list');
       if (!list) return;
       list.innerHTML = '';
+
+      const freqLabel = { weekly:'Semanal', biweekly:'Quinzenal', monthly:'Mensal', quarterly:'Trimestral', yearly:'Anual' };
+      const active = state.recurringTransactions.filter(r => r.active);
+
+      // Totals
+      const totalExp = active.filter(r => r.type === 'expense').reduce((s, r) => s + r.amount, 0);
+      const totalInc = active.filter(r => r.type === 'income').reduce((s, r) => s + r.amount, 0);
+      const elExp = document.getElementById('rec-total-expense');
+      const elInc = document.getElementById('rec-total-income');
+      const elCnt = document.getElementById('rec-total-count');
+      if (elExp) elExp.innerText = Utils.formatCurrency(totalExp);
+      if (elInc) elInc.innerText = Utils.formatCurrency(totalInc);
+      if (elCnt) elCnt.innerText = active.length;
 
       if (state.recurringTransactions.length === 0) {
         list.innerHTML = '<div class="empty-state"><i class="ph ph-repeat"></i><p>Nenhuma transação recorrente</p></div>';
@@ -2760,19 +2725,38 @@ const appModules = {
       }
 
       state.recurringTransactions.forEach(rec => {
-        const cat = Utils.getCategory(rec.categoryId, state.categories);
+        const cat   = Utils.getCategory(rec.categoryId, state.categories);
         const isInc = rec.type === 'income';
+        const freq  = freqLabel[rec.frequency] || rec.frequency;
+        const endInfo = rec.endDate ? `<span style="color:var(--text-muted)"> · Até ${Utils.formatDate(rec.endDate)}</span>` : '';
+        const dueInfo = rec.dueDay  ? `<span style="color:var(--text-muted)"> · Venc. dia ${rec.dueDay}</span>` : '';
+        const isExpired = rec.endDate && rec.endDate < Utils.today();
+
         list.innerHTML += `
-          <div class="rec-item">
-            <div class="rec-info">
-              <h4>${rec.description}</h4>
-              <p><i class="ph ph-repeat"></i> ${rec.frequency} &mdash; Próximo: ${Utils.formatDate(rec.nextDate)}</p>
+          <div class="rec-item" style="${isExpired ? 'opacity:0.5' : ''}">
+            <div class="rec-info" style="flex:1">
+              <h4 style="display:flex;align-items:center;gap:6px">
+                ${rec.description}
+                ${isExpired ? '<span style="font-size:10px;background:var(--red-muted);color:var(--red);padding:1px 6px;border-radius:4px;font-weight:600">Encerrado</span>' : ''}
+              </h4>
+              <p>
+                <i class="ph ph-repeat"></i> ${freq}${dueInfo}${endInfo}
+                &mdash; <span style="color:${cat.color}">${cat.name}</span>
+              </p>
             </div>
-            <div style="text-align:right">
-              <div class="rec-amount ${isInc ? 'income' : 'expense'}">
-                ${isInc ? '+' : '-'}${Utils.formatCurrency(rec.amount)}
-              </div>
-              <div style="font-size:11px;color:${cat.color};margin-top:2px">${cat.name}</div>
+            <div style="text-align:right;margin-right:12px">
+              <div class="rec-amount ${isInc ? 'income' : 'expense'}">${isInc ? '+' : '-'}${Utils.formatCurrency(rec.amount)}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <button class="icon-btn" title="Lançar agora" onclick="appModules.recurring.generateTransaction('${rec.id}')">
+                <i class="ph ph-paper-plane-tilt"></i>
+              </button>
+              <button class="icon-btn" title="Editar" onclick="appModules.recurring.editModal('${rec.id}')">
+                <i class="ph ph-pencil-simple"></i>
+              </button>
+              <button class="icon-btn" title="Excluir" onclick="appModules.recurring.delete('${rec.id}')">
+                <i class="ph ph-trash"></i>
+              </button>
             </div>
           </div>`;
       });
@@ -3084,18 +3068,99 @@ const appModules = {
   },
 
   recurring: {
-    openModal() {
-      const state = appModules.state.getState();
+    _fillCategorySelect(selectedId) {
+      const state  = appModules.state.getState();
       const select = document.getElementById('rec-category');
-      if (select) {
-        select.innerHTML = '';
-        state.categories.forEach(cat => {
-          select.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
-        });
-      }
-      document.getElementById('rec-desc').value   = '';
-      document.getElementById('rec-amount').value = '';
+      if (!select) return;
+      select.innerHTML = '';
+      state.categories.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat.id;
+        opt.text  = (cat.type === 'income' ? '↑ ' : '↓ ') + cat.name;
+        if (cat.id === selectedId) opt.selected = true;
+        select.appendChild(opt);
+      });
+    },
+
+    openModal() {
+      document.getElementById('rec-edit-id').value  = '';
+      document.getElementById('rec-desc').value      = '';
+      document.getElementById('rec-amount').value    = '';
+      document.getElementById('rec-freq').value      = 'monthly';
+      document.getElementById('rec-end-date').value  = '';
+      document.getElementById('rec-due-day').value   = '';
+      document.getElementById('rec-start-date').value = Utils.today();
+      document.getElementById('rec-modal-title').innerText = 'Nova Recorrente';
+      this._fillCategorySelect(null);
       appModules.modals.open('modal-recurring');
+    },
+
+    editModal(id) {
+      const state = appModules.state.getState();
+      const rec   = state.recurringTransactions.find(r => r.id === id);
+      if (!rec) return;
+      document.getElementById('rec-edit-id').value   = rec.id;
+      document.getElementById('rec-desc').value       = rec.description;
+      document.getElementById('rec-amount').value     = rec.amount;
+      document.getElementById('rec-freq').value       = rec.frequency;
+      document.getElementById('rec-start-date').value = rec.startDate || Utils.today();
+      document.getElementById('rec-end-date').value   = rec.endDate || '';
+      document.getElementById('rec-due-day').value    = rec.dueDay || '';
+      document.getElementById('rec-modal-title').innerText = 'Editar Recorrente';
+      this._fillCategorySelect(rec.categoryId);
+      appModules.modals.open('modal-recurring');
+    },
+
+    async delete(id) {
+      if (!confirm('Excluir esta recorrente?')) return;
+      try {
+        await DB.deleteRecurring(id);
+        const state = appModules.state.getState();
+        state.recurringTransactions = state.recurringTransactions.filter(r => r.id !== id);
+        appModules.state.setState(state);
+        appModules.navigation.renderRecurring();
+        appModules.ui.showMessage('Sucesso', 'Recorrente removida!');
+      } catch (err) {
+        appModules.ui.showMessage('Erro', 'Não foi possível excluir.', 'error');
+      }
+    },
+
+    async generateTransaction(id) {
+      const state = appModules.state.getState();
+      const rec   = state.recurringTransactions.find(r => r.id === id);
+      if (!rec) return;
+
+      // Use due day if set, otherwise today
+      let dateStr = Utils.today();
+      if (rec.dueDay) {
+        const d = new Date();
+        const day = Math.min(rec.dueDay, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate());
+        d.setDate(day);
+        dateStr = d.toISOString().split('T')[0];
+      }
+
+      const tx = {
+        id:          Utils.generateId(),
+        description: rec.description,
+        amount:      rec.amount,
+        date:        dateStr,
+        categoryId:  rec.categoryId,
+        type:        rec.type,
+        source:      'recurring',
+        createdAt:   new Date().toISOString()
+      };
+
+      try {
+        await DB.upsertTransaction(tx);
+        state.transactions.push(tx);
+        appModules.state.setState(state);
+        appModules.navigation.renderDashboard();
+        appModules.navigation.renderTransactions();
+        appModules.ui.showMessage('Sucesso', `"${rec.description}" lançado em ${Utils.formatDate(dateStr)}!`);
+      } catch (err) {
+        console.error(err);
+        appModules.ui.showMessage('Erro', 'Não foi possível lançar.', 'error');
+      }
     }
   },
 
@@ -3386,12 +3451,16 @@ function fillChat(text) {
 }
 
 async function saveRecurring() {
+  const editId     = document.getElementById('rec-edit-id').value.trim();
   const desc       = document.getElementById('rec-desc').value.trim();
   const amount     = parseFloat(document.getElementById('rec-amount').value);
   const freq       = document.getElementById('rec-freq').value;
   const categoryId = document.getElementById('rec-category').value;
+  const startDate  = document.getElementById('rec-start-date').value || Utils.today();
+  const endDate    = document.getElementById('rec-end-date').value   || null;
+  const dueDay     = parseInt(document.getElementById('rec-due-day').value) || null;
 
-  if (!desc || !amount) {
+  if (!desc || !amount || amount <= 0) {
     appModules.ui.showMessage('Atenção', 'Preencha todos os campos!', 'error');
     return;
   }
@@ -3402,26 +3471,34 @@ async function saveRecurring() {
   try {
     const state = appModules.state.getState();
     const cat   = Utils.getCategory(categoryId, state.categories);
-    const today = Utils.today();
 
     const rec = {
-      id: Utils.generateId(),
+      id:          editId || Utils.generateId(),
       description: desc,
       amount,
-      frequency: freq,
+      frequency:   freq,
       categoryId,
-      type: cat.type,
-      startDate: today,
-      nextDate: today,
-      active: true
+      type:        cat.type,
+      startDate,
+      nextDate:    startDate,
+      endDate,
+      dueDay,
+      active:      true
     };
 
     await DB.upsertRecurring(rec);
 
-    state.recurringTransactions.push(rec);
+    if (editId) {
+      const idx = state.recurringTransactions.findIndex(r => r.id === editId);
+      if (idx > -1) state.recurringTransactions[idx] = rec;
+      else state.recurringTransactions.push(rec);
+    } else {
+      state.recurringTransactions.push(rec);
+    }
+
     appModules.state.setState(state);
     appModules.modals.close('modal-recurring');
-    appModules.ui.showMessage('Sucesso', 'Recorrente adicionada!');
+    appModules.ui.showMessage('Sucesso', editId ? 'Recorrente atualizada!' : 'Recorrente adicionada!');
     appModules.navigation.renderRecurring();
   } catch (err) {
     console.error(err);
@@ -3525,6 +3602,16 @@ window.addEventListener('DOMContentLoaded', () => {
     window._rfStartLoad = startApp;
   }
 });
+
+// ---- BUDGET CARD TOGGLE ----
+function toggleBudgetCard() {
+  const body   = document.getElementById('budget-card-body');
+  const caret  = document.getElementById('budget-card-caret');
+  if (!body) return;
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  if (caret) caret.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+}
 
 // ---- MOBILE NAV ----
 function mobileNav(tabId) {
