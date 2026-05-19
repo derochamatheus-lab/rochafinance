@@ -1575,6 +1575,132 @@
     margin-top: 8px;
     font-weight: 600;
   }
+
+  /* ---- TRANSACTION FILTERS ---- */
+  .tx-filters {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 14px 16px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .tx-filter-input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.15s;
+    min-width: 0;
+  }
+
+  .tx-filter-input:focus { border-color: var(--accent); }
+  .tx-filter-input::placeholder { color: var(--text-muted); }
+
+  .tx-filter-select {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.15s;
+    cursor: pointer;
+    -webkit-appearance: none;
+  }
+
+  .tx-filter-select:focus { border-color: var(--accent); }
+
+  .tx-filter-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .tx-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .tx-filter-clear {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+    align-self: flex-end;
+  }
+
+  .tx-filter-clear:hover { border-color: var(--accent); color: var(--accent); }
+
+  .tx-results-count {
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 8px 16px 9px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ---- AI CATEGORY SUGGESTION ---- */
+  .ai-category-hint {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    margin: 6px 16px 0;
+    background: var(--accent-muted);
+    border: 1px solid var(--accent-dark);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--text-soft);
+    animation: fadeInUp 0.2s ease;
+  }
+
+  .ai-category-hint.visible { display: flex; }
+
+  .ai-hint-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .ai-hint-label {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: none; }
+  }
 </style>
 </head>
 <body>
@@ -1738,6 +1864,11 @@
                 <span><i class="ph ph-target"></i> Limite vs. Gasto por Categoria</span>
                 <i class="ph ph-caret-up" id="budget-card-caret" style="font-size:14px;color:var(--text-muted);transition:transform 0.25s"></i>
               </div>
+              <!-- Total sempre visível -->
+              <div id="budget-progress-total-fixed" style="display:none;margin-top:10px;padding:8px 12px;background:var(--surface2);border-radius:8px;justify-content:space-between;align-items:center;font-size:13px;font-weight:600">
+                <span style="color:var(--text-soft)"><i class="ph ph-sigma" style="font-size:13px;margin-right:4px"></i>Total Gasto / Limite</span>
+                <span id="budget-progress-total-fixed-val" style="font-variant-numeric:tabular-nums">—</span>
+              </div>
               <div id="budget-card-body" style="margin-top:14px">
                 <div id="budget-progress-list">
                   <p style="font-size:13px;color:var(--text-muted)">Configure limites na aba <strong>Limites</strong>.</p>
@@ -1770,6 +1901,47 @@
       <!-- TRANSACTIONS -->
       <div id="tab-transactions" class="tab-content">
         <div class="tx-table-wrap">
+          <!-- FILTERS -->
+          <div class="tx-filters">
+            <div class="tx-filter-group">
+              <span class="tx-filter-label"><i class="ph ph-magnifying-glass"></i> Descrição</span>
+              <input id="filter-desc" class="tx-filter-input" placeholder="Buscar..." style="width:160px" oninput="appModules.navigation.applyTxFilters()">
+            </div>
+            <div class="tx-filter-group">
+              <span class="tx-filter-label"><i class="ph ph-calendar"></i> Data Lançamento</span>
+              <input id="filter-date-from" class="tx-filter-input" type="date" oninput="appModules.navigation.applyTxFilters()">
+            </div>
+            <div class="tx-filter-group">
+              <span class="tx-filter-label">até</span>
+              <input id="filter-date-to" class="tx-filter-input" type="date" oninput="appModules.navigation.applyTxFilters()">
+            </div>
+            <div class="tx-filter-group">
+              <span class="tx-filter-label"><i class="ph ph-tag"></i> Categoria</span>
+              <select id="filter-category" class="tx-filter-select" onchange="appModules.navigation.applyTxFilters()">
+                <option value="">Todas</option>
+              </select>
+            </div>
+            <div class="tx-filter-group">
+              <span class="tx-filter-label"><i class="ph ph-arrows-left-right"></i> Tipo</span>
+              <select id="filter-type" class="tx-filter-select" onchange="appModules.navigation.applyTxFilters()">
+                <option value="">Todos</option>
+                <option value="expense">Saída</option>
+                <option value="income">Entrada</option>
+              </select>
+            </div>
+            <div class="tx-filter-group">
+              <span class="tx-filter-label"><i class="ph ph-user"></i> Por</span>
+              <select id="filter-user" class="tx-filter-select" onchange="appModules.navigation.applyTxFilters()">
+                <option value="">Todos</option>
+                <option value="leticia">Leticia</option>
+                <option value="matheus">Matheus</option>
+              </select>
+            </div>
+            <button class="tx-filter-clear" onclick="appModules.navigation.clearTxFilters()" title="Limpar filtros">
+              <i class="ph ph-x-circle"></i> Limpar
+            </button>
+          </div>
+          <div id="tx-results-count" class="tx-results-count" style="display:none"></div>
           <table class="tx-table">
             <thead>
               <tr>
@@ -1806,14 +1978,23 @@
             <div class="msg-bot">
               <div class="msg-bubble">
                 Olá! Pode me dizer seus gastos em linguagem natural.<br><br>
-                Exemplos:<br>
-                <em>"Mercado 150"</em><br>
+                <strong>Formas de lançar:</strong><br>
+                <em>"Mercado 150"</em> — detecção automática<br>
+                <em>"#1 Mercado 150"</em> — forçar categoria pelo código<br>
                 <em>"Gasolina 80,50 pago dia 20"</em><br>
-                <em>"Aluguel 1500 vence 10/06"</em><br>
-                <em>"Recebi salário 3000"</em>
+                <em>"Recebi salário 3000"</em><br><br>
+                <small style="color:var(--text-muted)">Use <strong>/categorias</strong> para ver os códigos disponíveis.</small>
               </div>
               <div class="msg-time">Agora</div>
             </div>
+          </div>
+
+          <!-- PAINEL DE CATEGORIAS (toggle) -->
+          <div id="chat-cats-panel" style="display:none;background:var(--surface2);border-top:1px solid var(--border);padding:10px 14px;max-height:200px;overflow-y:auto">
+            <div style="font-size:10px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">
+              <i class="ph ph-hash"></i> Códigos de Categoria — use #N no início
+            </div>
+            <div id="chat-cats-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:5px"></div>
           </div>
 
           <div class="chat-hint">
@@ -1823,16 +2004,32 @@
             <span onclick="fillChat('iFood 45')">iFood 45</span>
             <span onclick="fillChat('Aluguel 1500 vence 10/06')">Aluguel vence 10/06</span>
             <span onclick="fillChat('Recebi salário 5000')">Salário 5000</span>
+            <span onclick="appModules.chat.toggleCatsPanel()" style="margin-left:auto;color:var(--accent);border-color:var(--accent)"><i class="ph ph-hash"></i> Categorias</span>
           </div>
 
           <div class="chat-input-wrap">
             <button id="mic-btn" class="mic-btn" onclick="appModules.chat.toggleMic()" title="Falar despesa">
               <i class="ph ph-microphone" id="mic-icon"></i>
             </button>
-            <input id="chat-input" class="chat-input" placeholder="Ex: Almoço no restaurante 35,00" onkeypress="appModules.chat.handleKeyPress(event)">
+            <input id="chat-input" class="chat-input" placeholder="Ex: Almoço no restaurante 35,00 ou #2 Gasolina 80" oninput="appModules.chat.onInputChange(this.value)" onkeypress="appModules.chat.handleKeyPress(event)">
             <button class="chat-send-btn" onclick="appModules.chat.sendMessage()">
               <i class="ph ph-paper-plane-tilt"></i>
             </button>
+          </div>
+          <!-- HINT de categoria detectada com opção de corrigir -->
+          <div id="ai-category-hint" class="ai-category-hint">
+            <i class="ph ph-robot" style="color:var(--accent);font-size:15px;flex-shrink:0"></i>
+            <span class="ai-hint-label" id="ai-hint-source-label">Categoria detectada:</span>
+            <span id="ai-hint-badge" class="ai-hint-badge"></span>
+            <span id="ai-hint-type" style="font-size:10px;color:var(--text-muted)"></span>
+            <button id="ai-hint-change-btn" onclick="appModules.chat.openCategoryCorrection()" title="Alterar categoria" style="margin-left:auto;background:none;border:1px solid var(--border2);color:var(--text-muted);font-size:11px;padding:2px 8px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:4px;transition:all 0.15s">
+              <i class="ph ph-pencil-simple" style="font-size:11px"></i> Corrigir
+            </button>
+          </div>
+          <!-- DROPDOWN de correção de categoria -->
+          <div id="ai-correction-panel" style="display:none;padding:8px 14px 10px;background:var(--surface2);border-top:1px solid var(--border)">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px"><i class="ph ph-brain" style="color:var(--accent)"></i> Selecione a categoria correta — o assistente vai aprender para os próximos lançamentos:</div>
+            <div id="ai-correction-list" style="display:flex;flex-wrap:wrap;gap:6px"></div>
           </div>
         </div>
       </div>
@@ -2365,35 +2562,136 @@ const DB = {
 };
 
 // ============================================================
-// 4. NLP MODULE
+// 4. NLP MODULE — com IDs de categoria, memória e aprendizado
 // ============================================================
+
+// Memória de correções: { "palavra_normalizada": "cat_id" }
+// Persiste em localStorage para sobreviver reloads
+const CategoryMemory = {
+  _key: 'rf_cat_memory',
+
+  load() {
+    try { return JSON.parse(localStorage.getItem(this._key) || '{}'); }
+    catch(e) { return {}; }
+  },
+
+  save(mem) {
+    try { localStorage.setItem(this._key, JSON.stringify(mem)); }
+    catch(e) {}
+  },
+
+  // Registra que "descNorm" → catId (aprende correção)
+  learn(descNorm, catId) {
+    const mem = this.load();
+    mem[descNorm] = catId;
+    this.save(mem);
+  },
+
+  // Retorna catId memorizado para descNorm, ou null
+  recall(descNorm) {
+    const mem = this.load();
+    // Tenta match exato
+    if (mem[descNorm]) return mem[descNorm];
+    // Tenta se qualquer chave está contida na descrição
+    for (const key of Object.keys(mem)) {
+      if (descNorm.includes(key) && key.length >= 3) return mem[key];
+    }
+    return null;
+  },
+
+  // Retorna todas as entradas para exibir na UI
+  getAll() { return this.load(); },
+
+  clear() { localStorage.removeItem(this._key); }
+};
+
 const NLPModule = {
+
+  // Normaliza texto: lowercase, sem acentos, sem pontuação extra
+  _norm(s) {
+    return s.toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .replace(/\s+/g, ' ').trim();
+  },
+
+  // Extrai número do ID de categoria digitado: "#3 mercado 150" ou "3 mercado 150"
+  _extractCategoryId(text, categories) {
+    // Padrão: # seguido de número, ou número no início
+    const m = text.match(/^#?(\d+)\s+/);
+    if (!m) return null;
+    const num = parseInt(m[1]);
+    // Monta índice baseado nas categorias ordenadas por id
+    const sorted = [...categories].sort((a,b) => {
+      const na = parseInt(a.id.replace(/\D/g,'')) || 0;
+      const nb = parseInt(b.id.replace(/\D/g,'')) || 0;
+      return na - nb;
+    });
+    // Índice 1-based
+    const cat = sorted[num - 1];
+    return cat ? { cat, cleanText: text.replace(/^#?\d+\s+/, '') } : null;
+  },
+
   process(message, state) {
     const lower = message.toLowerCase();
-    const valueMatch = lower.match(/(\d+(?:[.,]\d{2})?)/);
-    if (!valueMatch) return { success: false, error: "Não consegui identificar o valor. Tente: 'Mercado 150'" };
+    const norm  = this._norm(message);
+
+    // --- Verificar se inicia com ID de categoria (#N ou N + espaço)
+    const byId = this._extractCategoryId(message.trim(), state.categories);
+
+    // Extrair valor numérico (ignora o número do ID se vier no início)
+    const textForValue = byId ? byId.cleanText : message;
+    const valueMatch = textForValue.match(/(\d+(?:[.,]\d{2})?)/);
+    if (!valueMatch) return { success: false, error: "Não consegui identificar o valor. Tente: 'Mercado 150' ou '#1 Mercado 150'" };
 
     let amount = parseFloat(valueMatch[1].replace(',', '.'));
     if (amount <= 0) return { success: false, error: "O valor precisa ser maior que zero." };
 
-    let desc = message.replace(valueMatch[0], '').trim() || "Lançamento via IA";
+    let desc = textForValue.replace(valueMatch[0], '').trim() || "Lançamento via IA";
 
     let categoryId = null;
-    const keywords = Object.keys(state.keywordDict).sort((a,b) => b.length - a.length);
-    for (let kw of keywords) {
-      if (lower.includes(kw)) { categoryId = state.keywordDict[kw]; break; }
+    let matchSource = null; // 'id' | 'memory' | 'keyword' | 'fallback'
+
+    // 1. Prioridade máxima: ID explícito digitado pelo usuário
+    if (byId) {
+      categoryId  = byId.cat.id;
+      matchSource = 'id';
+    }
+
+    // 2. Memória de correções passadas
+    if (!categoryId) {
+      const descNorm = this._norm(desc);
+      const remembered = CategoryMemory.recall(descNorm);
+      if (remembered) {
+        categoryId  = remembered;
+        matchSource = 'memory';
+      }
+    }
+
+    // 3. Keywords estáticas do keywordDict
+    if (!categoryId) {
+      const keywords = Object.keys(state.keywordDict).sort((a,b) => b.length - a.length);
+      for (let kw of keywords) {
+        if (lower.includes(kw)) { categoryId = state.keywordDict[kw]; matchSource = 'keyword'; break; }
+      }
     }
 
     const isIncome = lower.includes('recebi') || lower.includes('salario') || lower.includes('salário') || lower.includes('venda');
     let type = isIncome ? 'income' : 'expense';
 
-    if (!categoryId) categoryId = isIncome ? state.categories.find(c => c.type === 'income')?.id : 'cat_7';
-    else type = Utils.getCategory(categoryId, state.categories).type;
+    // 4. Fallback
+    if (!categoryId) {
+      categoryId  = isIncome ? state.categories.find(c => c.type === 'income')?.id : 'cat_7';
+      matchSource = 'fallback';
+    } else {
+      type = Utils.getCategory(categoryId, state.categories).type;
+    }
 
     return {
       success: true,
       description: desc.charAt(0).toUpperCase() + desc.slice(1),
-      amount, categoryId, type,
+      amount, categoryId, type, matchSource,
+      descNorm: this._norm(desc),
       paymentDate: NLPModule.extractPaymentDate(lower)
     };
   },
@@ -2515,6 +2813,9 @@ const appModules = {
       d.setMonth(d.getMonth() + delta);
       appModules.state.setState({ currentDate: d });
       this.updateMonthDisplay();
+      // Reset category filter populated flag so it refreshes
+      const sel = document.getElementById('filter-category');
+      if (sel) sel.dataset.populated = '';
       this.renderDashboard();
       this.renderTransactions();
       // Re-render budgets if tab is open
@@ -2584,6 +2885,16 @@ const appModules = {
       const expCats = state.categories.filter(c => c.type === 'expense');
       const visible = expCats.filter(c => monthBudgets[c.id] || catTotals[c.id]);
 
+      // Ordenar por valor gasto (maior primeiro), depois por limite definido
+      visible.sort((a, b) => {
+        const spentA = catTotals[a.id] || 0;
+        const spentB = catTotals[b.id] || 0;
+        if (spentB !== spentA) return spentB - spentA;
+        const limA = monthBudgets[a.id] || 0;
+        const limB = monthBudgets[b.id] || 0;
+        return limB - limA;
+      });
+
       if (visible.length === 0) {
         list.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">Configure limites na aba <strong>Limites</strong> ou registre gastos.</p>';
         const tf = document.getElementById('budget-progress-total');
@@ -2628,12 +2939,19 @@ const appModules = {
       // Total footer inside the card
       const tf  = document.getElementById('budget-progress-total');
       const tfv = document.getElementById('budget-progress-total-val');
+      const tfFixed  = document.getElementById('budget-progress-total-fixed');
+      const tfFixedV = document.getElementById('budget-progress-total-fixed-val');
       if (tf && totalLimit > 0) {
         tf.style.display = 'flex';
         const over = totalSpent > totalLimit;
-        if (tfv) tfv.innerHTML = `<span style="color:${over ? 'var(--red)' : 'var(--green)'}; font-variant-numeric:tabular-nums">${Utils.formatCurrency(totalSpent)} / ${Utils.formatCurrency(totalLimit)}</span>`;
-      } else if (tf) {
-        tf.style.display = 'none';
+        const valHtml = `<span style="color:${over ? 'var(--red)' : 'var(--green)'}; font-variant-numeric:tabular-nums">${Utils.formatCurrency(totalSpent)} / ${Utils.formatCurrency(totalLimit)}</span>`;
+        if (tfv) tfv.innerHTML = valHtml;
+        // Always-visible total (shown when card is collapsed)
+        if (tfFixed)  tfFixed.style.display = 'flex';
+        if (tfFixedV) tfFixedV.innerHTML = valHtml;
+      } else {
+        if (tf) tf.style.display = 'none';
+        if (tfFixed) tfFixed.style.display = 'none';
       }
     },
 
@@ -2670,12 +2988,73 @@ const appModules = {
       });
     },
 
-    renderTransactions() {
+    renderTransactions(filtered) {
       const state = appModules.state.getState();
       const prefix = Utils.getMonthYearStr(state.currentDate);
-      const txs = state.transactions
+      let txs = state.transactions
         .filter(t => Utils.effectiveDate(t).startsWith(prefix))
         .sort((a,b) => new Date(Utils.effectiveDate(b)) - new Date(Utils.effectiveDate(a)));
+
+      // Populate category filter dropdown (only once or on refresh)
+      this._populateCategoryFilter(state);
+
+      // Apply active filters
+      const fDesc     = (document.getElementById('filter-desc')?.value || '').toLowerCase();
+      const fDateFrom = document.getElementById('filter-date-from')?.value || '';
+      const fDateTo   = document.getElementById('filter-date-to')?.value || '';
+      const fCategory = document.getElementById('filter-category')?.value || '';
+      const fType     = document.getElementById('filter-type')?.value || '';
+      const fUser     = document.getElementById('filter-user')?.value || '';
+
+      const hasFilter = fDesc || fDateFrom || fDateTo || fCategory || fType || fUser;
+
+      if (hasFilter) {
+        txs = txs.filter(tx => {
+          if (fDesc && !tx.description.toLowerCase().includes(fDesc)) return false;
+          if (fDateFrom && tx.date < fDateFrom) return false;
+          if (fDateTo   && tx.date > fDateTo)   return false;
+          if (fCategory && tx.categoryId !== fCategory) return false;
+          if (fType     && tx.type !== fType)   return false;
+          if (fUser     && tx.insertedBy !== fUser) return false;
+          return true;
+        });
+      }
+
+      // Results count bar + totals
+      const countEl = document.getElementById('tx-results-count');
+      if (countEl) {
+        if (hasFilter) {
+          const totalIncome  = txs.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+          const totalExpense = txs.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+          const balance      = totalIncome - totalExpense;
+          const hasBoth      = totalIncome > 0 && totalExpense > 0;
+          const onlyIncome   = totalIncome > 0 && totalExpense === 0;
+          const onlyExpense  = totalExpense > 0 && totalIncome === 0;
+
+          let totalsHtml = '';
+          if (onlyIncome) {
+            totalsHtml = `<span style="color:var(--green);font-weight:600">+${Utils.formatCurrency(totalIncome)}</span>`;
+          } else if (onlyExpense) {
+            totalsHtml = `<span style="color:var(--text);font-weight:600">-${Utils.formatCurrency(totalExpense)}</span>`;
+          } else if (hasBoth) {
+            totalsHtml = `
+              <span style="color:var(--green)">+${Utils.formatCurrency(totalIncome)}</span>
+              <span style="color:var(--border2)">·</span>
+              <span style="color:var(--text)">-${Utils.formatCurrency(totalExpense)}</span>
+              <span style="color:var(--border2)">·</span>
+              <span style="color:${balance >= 0 ? 'var(--green)' : 'var(--red)'};font-weight:700">${balance >= 0 ? '+' : ''}${Utils.formatCurrency(balance)}</span>`;
+          }
+
+          countEl.style.display = 'block';
+          countEl.innerHTML = `
+            <span style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <span><i class="ph ph-funnel" style="font-size:12px;margin-right:3px"></i><strong>${txs.length}</strong> transaç${txs.length !== 1 ? 'ões' : 'ão'}</span>
+              ${totalsHtml ? '<span style="color:var(--border2)">|</span>' + totalsHtml : ''}
+            </span>`;
+        } else {
+          countEl.style.display = 'none';
+        }
+      }
 
       const list = document.getElementById('transactions-list');
       const empty = document.getElementById('empty-transactions');
@@ -2725,6 +3104,33 @@ const appModules = {
             </tr>`;
         });
       }
+    },
+
+    _populateCategoryFilter(state) {
+      const sel = document.getElementById('filter-category');
+      if (!sel || sel.dataset.populated === 'true') return;
+      sel.innerHTML = '<option value="">Todas</option>';
+      state.categories.forEach(cat => {
+        sel.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
+      });
+      sel.dataset.populated = 'true';
+    },
+
+    applyTxFilters() {
+      // Reset populated flag so categories stay in sync
+      const sel = document.getElementById('filter-category');
+      if (sel) sel.dataset.populated = 'true'; // keep existing options
+      this.renderTransactions(true);
+    },
+
+    clearTxFilters() {
+      ['filter-desc','filter-date-from','filter-date-to','filter-type','filter-user'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      const sel = document.getElementById('filter-category');
+      if (sel) sel.value = '';
+      this.renderTransactions();
     },
 
     renderRecurring() {
@@ -2997,6 +3403,172 @@ const appModules = {
   chat: {
     handleKeyPress(e) { if (e.key === 'Enter') this.sendMessage(); },
 
+    _hintTimeout: null,
+    _lastResult: null, // último resultado NLP para correção
+
+    // Retorna número sequencial da categoria para exibir como código
+    _catNumber(catId, categories) {
+      const sorted = [...categories].sort((a,b) => {
+        const na = parseInt(a.id.replace(/\D/g,'')) || 0;
+        const nb = parseInt(b.id.replace(/\D/g,'')) || 0;
+        return na - nb;
+      });
+      const idx = sorted.findIndex(c => c.id === catId);
+      return idx >= 0 ? idx + 1 : '?';
+    },
+
+    // Popula e exibe painel de categorias com seus IDs
+    toggleCatsPanel() {
+      const panel = document.getElementById('chat-cats-panel');
+      const list  = document.getElementById('chat-cats-list');
+      if (!panel || !list) return;
+      const isOpen = panel.style.display !== 'none';
+      if (!isOpen) {
+        const state = appModules.state.getState();
+        const sorted = [...state.categories].sort((a,b) => {
+          const na = parseInt(a.id.replace(/\D/g,'')) || 0;
+          const nb = parseInt(b.id.replace(/\D/g,'')) || 0;
+          return na - nb;
+        });
+        list.innerHTML = sorted.map((cat, i) => `
+          <div onclick="appModules.chat.insertCatId(${i+1})" title="Inserir #${i+1} no campo"
+            style="display:flex;align-items:center;gap:7px;padding:5px 8px;background:var(--surface);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:border-color 0.15s;font-size:12px"
+            onmouseover="this.style.borderColor='${cat.color}'" onmouseout="this.style.borderColor='var(--border)'">
+            <span style="font-size:10px;font-weight:700;color:var(--text-muted);min-width:16px">#${i+1}</span>
+            <span style="width:8px;height:8px;border-radius:50%;background:${cat.color};flex-shrink:0"></span>
+            <span style="color:var(--text);font-weight:500">${cat.name}</span>
+            <span style="font-size:10px;color:var(--text-muted);margin-left:auto">${cat.type === 'income' ? '↑' : '↓'}</span>
+          </div>`).join('');
+        // Mostrar memória se houver
+        const mem = CategoryMemory.getAll();
+        const memEntries = Object.entries(mem);
+        if (memEntries.length > 0) {
+          list.innerHTML += `<div style="grid-column:1/-1;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
+            <div style="font-size:10px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px"><i class="ph ph-brain"></i> Memória de correções</div>
+            <div style="display:flex;flex-wrap:wrap;gap:5px">
+              ${memEntries.map(([desc, catId]) => {
+                const cat = Utils.getCategory(catId, state.categories);
+                return `<span style="font-size:11px;padding:2px 8px;background:${cat.color}18;color:${cat.color};border-radius:5px;border:1px solid ${cat.color}40">${desc} → ${cat.name}</span>`;
+              }).join('')}
+            </div>
+            <button onclick="CategoryMemory.clear();appModules.chat.toggleCatsPanel();appModules.chat.toggleCatsPanel()" style="margin-top:6px;background:none;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">
+              <i class="ph ph-trash"></i> Limpar memória
+            </button>
+          </div>`;
+        }
+      }
+      panel.style.display = isOpen ? 'none' : 'block';
+    },
+
+    insertCatId(num) {
+      const input = document.getElementById('chat-input');
+      if (!input) return;
+      // Se já tem #N no início, substitui; senão adiciona
+      const current = input.value.replace(/^#?\d+\s+/, '');
+      input.value = `#${num} ${current}`;
+      input.focus();
+      this.onInputChange(input.value);
+      document.getElementById('chat-cats-panel').style.display = 'none';
+    },
+
+    // Abre o dropdown de correção de categoria
+    openCategoryCorrection() {
+      const panel = document.getElementById('ai-correction-panel');
+      const list  = document.getElementById('ai-correction-list');
+      if (!panel || !list || !this._lastResult) return;
+      const state = appModules.state.getState();
+      const sorted = [...state.categories].sort((a,b) => {
+        const na = parseInt(a.id.replace(/\D/g,'')) || 0;
+        const nb = parseInt(b.id.replace(/\D/g,'')) || 0;
+        return na - nb;
+      });
+      list.innerHTML = sorted.map((cat, i) => {
+        const isCurrent = cat.id === this._lastResult.categoryId;
+        return `<button onclick="appModules.chat.applyCorrection('${cat.id}')"
+          style="display:flex;align-items:center;gap:6px;padding:4px 10px;background:${isCurrent ? cat.color+'22' : 'var(--surface)'};border:1px solid ${isCurrent ? cat.color : 'var(--border)'};border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text);transition:all 0.15s">
+          <span style="font-size:10px;color:var(--text-muted)">#${i+1}</span>
+          <span style="width:7px;height:7px;border-radius:50%;background:${cat.color}"></span>
+          ${cat.name}${isCurrent ? ' <i class="ph ph-check-circle" style="color:'+cat.color+';font-size:12px"></i>' : ''}
+        </button>`;
+      }).join('');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    },
+
+    // Aplica a correção: aprende e atualiza a última transação do chat
+    applyCorrection(newCatId) {
+      if (!this._lastResult) return;
+      const state = appModules.state.getState();
+      const cat = Utils.getCategory(newCatId, state.categories);
+
+      // Aprende: grava memória com a descrição normalizada
+      CategoryMemory.learn(this._lastResult.descNorm, newCatId);
+
+      // Atualiza a transação mais recente do chat no state (se existir)
+      const lastChatTx = state.transactions.find(t => t.source === 'chat' && t.description === this._lastResult.description);
+      if (lastChatTx) {
+        lastChatTx.categoryId = newCatId;
+        lastChatTx.type = cat.type;
+        DB.upsertTransaction(lastChatTx).catch(console.error);
+        appModules.state.setState(state);
+        appModules.navigation.renderDashboard();
+        appModules.navigation.renderTransactions();
+      }
+
+      // Atualiza o hint
+      const badge = document.getElementById('ai-hint-badge');
+      if (badge) {
+        badge.style.background = cat.color + '22';
+        badge.style.color = cat.color;
+        badge.innerHTML = `<i class="ph ${cat.icon}" style="font-size:11px"></i> ${cat.name}`;
+      }
+      const srcLabel = document.getElementById('ai-hint-source-label');
+      if (srcLabel) srcLabel.innerHTML = '<i class="ph ph-brain" style="color:var(--accent)"></i> Aprendido:';
+
+      document.getElementById('ai-correction-panel').style.display = 'none';
+      this._lastResult.categoryId = newCatId;
+      appModules.ui.showMessage('✅ Memória atualizada', `Próximo "${this._lastResult.description}" → ${cat.name}`);
+    },
+
+    onInputChange(value) {
+      clearTimeout(this._hintTimeout);
+      const hint = document.getElementById('ai-category-hint');
+      const corrPanel = document.getElementById('ai-correction-panel');
+      if (!value.trim() || value.trim().length < 3) {
+        if (hint) hint.classList.remove('visible');
+        if (corrPanel) corrPanel.style.display = 'none';
+        return;
+      }
+      this._hintTimeout = setTimeout(() => {
+        const state = appModules.state.getState();
+        const result = NLPModule.process(value, state);
+        if (result.success && result.categoryId) {
+          const cat = Utils.getCategory(result.categoryId, state.categories);
+          if (cat && hint) {
+            const badge   = document.getElementById('ai-hint-badge');
+            const typeEl  = document.getElementById('ai-hint-type');
+            const srcLabel = document.getElementById('ai-hint-source-label');
+            if (badge) {
+              badge.style.background = cat.color + '22';
+              badge.style.color = cat.color;
+              badge.innerHTML = `<i class="ph ${cat.icon}" style="font-size:11px"></i> ${cat.name}`;
+            }
+            if (typeEl) {
+              typeEl.textContent = result.type === 'income' ? '↑ Entrada' : '↓ Saída';
+              typeEl.style.color = result.type === 'income' ? 'var(--green)' : 'var(--red)';
+            }
+            if (srcLabel) {
+              const labels = { id:'#ID:', memory:'<i class="ph ph-brain" style="color:var(--accent)"></i> Memória:', keyword:'Detectada:', fallback:'Padrão:' };
+              srcLabel.innerHTML = labels[result.matchSource] || 'Detectada:';
+            }
+            hint.classList.add('visible');
+            this._lastResult = result;
+          }
+        } else {
+          if (hint) hint.classList.remove('visible');
+        }
+      }, 200);
+    },
+
     _recognition: null,
     _isRecording: false,
 
@@ -3031,13 +3603,14 @@ const appModules = {
 
       recognition.onresult = (event) => {
         input.value = Array.from(event.results).map(r => r[0].transcript).join('');
+        this.onInputChange(input.value);
       };
 
       recognition.onend = () => {
         this._isRecording = false;
         micBtn.classList.remove('recording');
         micIcon.className = 'ph ph-microphone';
-        input.placeholder = 'Ex: Almoço no restaurante 35,00';
+        input.placeholder = 'Ex: Almoço no restaurante 35,00 ou #2 Gasolina 80';
         if (input.value.trim()) setTimeout(() => this.sendMessage(), 300);
       };
 
@@ -3045,7 +3618,7 @@ const appModules = {
         this._isRecording = false;
         micBtn.classList.remove('recording');
         micIcon.className = 'ph ph-microphone';
-        input.placeholder = 'Ex: Almoço no restaurante 35,00';
+        input.placeholder = 'Ex: Almoço no restaurante 35,00 ou #2 Gasolina 80';
         if (e.error !== 'aborted')
           appModules.ui.showMessage('Erro', 'Não foi possível capturar áudio.', 'error');
       };
@@ -3058,8 +3631,20 @@ const appModules = {
       const text  = input.value.trim();
       if (!text) return;
 
+      // Comando especial: /categorias
+      if (text.toLowerCase() === '/categorias') {
+        input.value = '';
+        this.toggleCatsPanel();
+        return;
+      }
+
       this.appendMessage(text, true);
       input.value = '';
+      // Hide hints
+      const hint = document.getElementById('ai-category-hint');
+      if (hint) hint.classList.remove('visible');
+      const corrPanel = document.getElementById('ai-correction-panel');
+      if (corrPanel) corrPanel.style.display = 'none';
 
       setTimeout(async () => {
         const state  = appModules.state.getState();
@@ -3083,12 +3668,33 @@ const appModules = {
             await DB.upsertTransaction(tx);
             state.transactions.unshift(tx);
             appModules.state.setState(state);
+            this._lastResult = { ...result, description: result.description };
 
             const cat = Utils.getCategory(result.categoryId, state.categories);
+            const catNum = this._catNumber(result.categoryId, state.categories);
+            const srcIcon = { id:'<i class="ph ph-hash" style="color:var(--accent)"></i>', memory:'<i class="ph ph-brain" style="color:var(--accent)"></i>', keyword:'<i class="ph ph-tag"></i>', fallback:'<i class="ph ph-dots-three"></i>' }[result.matchSource] || '';
             const pgtoInfo = result.paymentDate
               ? `<br><small style="color:var(--text-muted)"><i class="ph ph-calendar-check"></i> Pagamento: ${Utils.formatDate(result.paymentDate)}</small>`
               : '';
-            this.appendMessage(`✅ <strong>${result.description}</strong><br>${Utils.formatCurrency(result.amount)} &mdash; ${cat.name}${pgtoInfo}<br><small style="color:var(--text-muted)">Errou a categoria? Edite no histórico.</small>`, false);
+            const memNote = result.matchSource === 'memory' ? `<br><small style="color:var(--accent)"><i class="ph ph-brain"></i> Categoria da memória</small>` : '';
+            this.appendMessage(
+              `✅ <strong>${result.description}</strong><br>` +
+              `${Utils.formatCurrency(result.amount)} &mdash; ${srcIcon} <span style="color:${cat.color}">${cat.name}</span> <span style="color:var(--text-muted);font-size:11px">(#${catNum})</span>` +
+              `${pgtoInfo}${memNote}<br>` +
+              `<small style="color:var(--text-muted)">Errou? Clique em <strong>Corrigir</strong> abaixo ou use <strong>#${catNum}</strong> para forçar.</small>`,
+              false
+            );
+
+            // Mostrar hint com botão corrigir após envio
+            if (hint) {
+              const badge = document.getElementById('ai-hint-badge');
+              const typeEl = document.getElementById('ai-hint-type');
+              const srcLabel = document.getElementById('ai-hint-source-label');
+              if (badge) { badge.style.background = cat.color+'22'; badge.style.color = cat.color; badge.innerHTML = `<i class="ph ${cat.icon}" style="font-size:11px"></i> ${cat.name}`; }
+              if (typeEl) { typeEl.textContent = result.type === 'income' ? '↑ Entrada' : '↓ Saída'; typeEl.style.color = result.type === 'income' ? 'var(--green)' : 'var(--red)'; }
+              if (srcLabel) { const lbl = { id:'#ID:', memory:'<i class="ph ph-brain" style="color:var(--accent)"></i> Memória:', keyword:'Detectada:', fallback:'Padrão:' }; srcLabel.innerHTML = lbl[result.matchSource] || 'Detectada:'; }
+              hint.classList.add('visible');
+            }
 
             // Verificar limite
             if (result.type === 'expense') appModules.ui.checkBudgetAlert(result.categoryId, appModules.state.getState());
@@ -3692,10 +4298,15 @@ window.addEventListener('DOMContentLoaded', () => {
 function toggleBudgetCard() {
   const body   = document.getElementById('budget-card-body');
   const caret  = document.getElementById('budget-card-caret');
+  const fixed  = document.getElementById('budget-progress-total-fixed');
   if (!body) return;
   const isOpen = body.style.display !== 'none';
   body.style.display = isOpen ? 'none' : 'block';
   if (caret) caret.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+  // When collapsed: show fixed total (if it has data); when open: hide it (redundant with inner total)
+  if (fixed && fixed.style.display !== 'none') {
+    fixed.style.marginBottom = isOpen ? '0' : '0';
+  }
 }
 
 // ---- MOBILE NAV ----
