@@ -2453,20 +2453,24 @@ const DB = {
       cats = inserted;
     }
 
-    // Transações, recorrentes e orçamentos em paralelo
+    // Transações, recorrentes, orçamentos e memória IA em paralelo
     const [
       { data: txs,  error: txErr  },
       { data: recs, error: recErr },
-      { data: buds, error: budErr }
+      { data: buds, error: budErr },
+      { data: mems, error: memErr }
     ] = await Promise.all([
       db.from('transactions').select('*').order('date', { ascending: false }),
       db.from('recurring_transactions').select('*'),
-      db.from('budgets').select('month_key,category_id,amount')
+      db.from('budgets').select('month_key,category_id,amount'),
+      db.from('ai_category_memory').select('desc_norm,category_id')
     ]);
 
     if (txErr)  throw txErr;
     if (recErr) throw recErr;
     if (budErr) throw budErr;
+    // memErr não é fatal — tabela pode não existir ainda
+    if (memErr) console.warn('ai_category_memory não encontrada — rode o SQL de criação no Supabase.', memErr.message);
 
     // Orçamentos: converte array [{month_key, category_id, amount}] → objeto { "YYYY-MM": { cat_id: valor } }
     const budgets = {};
@@ -2475,6 +2479,10 @@ const DB = {
       if (!budgets[mk]) budgets[mk] = {};
       budgets[mk][b.category_id] = Number(b.amount);
     });
+
+    // Popula cache da memória IA
+    CategoryMemory._cache = {};
+    (mems || []).forEach(r => { CategoryMemory._cache[r.desc_norm] = r.category_id; });
 
     appModules.state.setState({
       categories: cats || state.categories,
@@ -2565,44 +2573,55 @@ const DB = {
 // 4. NLP MODULE — com IDs de categoria, memória e aprendizado
 // ============================================================
 
-// Memória de correções: { "palavra_normalizada": "cat_id" }
-// Persiste em localStorage para sobreviver reloads
+// Memória de correções — persiste na tabela ai_category_memory do Supabase
+// Cache em memória para consultas síncronas no NLP (carregado no startApp)
 const CategoryMemory = {
-  _key: 'rf_cat_memory',
+  _cache: {}, // { desc_norm: category_id }
 
-  load() {
-    try { return JSON.parse(localStorage.getItem(this._key) || '{}'); }
-    catch(e) { return {}; }
+  // Carrega do banco para o cache — chamado uma vez no startApp
+  async loadFromDB() {
+    try {
+      const { data, error } = await db.from('ai_category_memory').select('desc_norm,category_id');
+      if (error) throw error;
+      this._cache = {};
+      (data || []).forEach(r => { this._cache[r.desc_norm] = r.category_id; });
+    } catch(e) {
+      console.warn('CategoryMemory: falha ao carregar do banco', e);
+    }
   },
 
-  save(mem) {
-    try { localStorage.setItem(this._key, JSON.stringify(mem)); }
-    catch(e) {}
+  // Grava no banco e atualiza cache
+  async learn(descNorm, catId) {
+    this._cache[descNorm] = catId;
+    try {
+      const { error } = await db.from('ai_category_memory')
+        .upsert({ desc_norm: descNorm, category_id: catId }, { onConflict: 'desc_norm' });
+      if (error) throw error;
+    } catch(e) {
+      console.warn('CategoryMemory: falha ao salvar no banco', e);
+    }
   },
 
-  // Registra que "descNorm" → catId (aprende correção)
-  learn(descNorm, catId) {
-    const mem = this.load();
-    mem[descNorm] = catId;
-    this.save(mem);
-  },
-
-  // Retorna catId memorizado para descNorm, ou null
+  // Consulta síncrona no cache (NLP roda de forma síncrona)
   recall(descNorm) {
-    const mem = this.load();
-    // Tenta match exato
-    if (mem[descNorm]) return mem[descNorm];
-    // Tenta se qualquer chave está contida na descrição
-    for (const key of Object.keys(mem)) {
-      if (descNorm.includes(key) && key.length >= 3) return mem[key];
+    if (this._cache[descNorm]) return this._cache[descNorm];
+    for (const key of Object.keys(this._cache)) {
+      if (descNorm.includes(key) && key.length >= 3) return this._cache[key];
     }
     return null;
   },
 
-  // Retorna todas as entradas para exibir na UI
-  getAll() { return this.load(); },
+  getAll() { return { ...this._cache }; },
 
-  clear() { localStorage.removeItem(this._key); }
+  async clear() {
+    this._cache = {};
+    try {
+      const { error } = await db.from('ai_category_memory').delete().neq('desc_norm', '');
+      if (error) throw error;
+    } catch(e) {
+      console.warn('CategoryMemory: falha ao limpar no banco', e);
+    }
+  }
 };
 
 const NLPModule = {
@@ -3451,7 +3470,7 @@ const appModules = {
                 return `<span style="font-size:11px;padding:2px 8px;background:${cat.color}18;color:${cat.color};border-radius:5px;border:1px solid ${cat.color}40">${desc} → ${cat.name}</span>`;
               }).join('')}
             </div>
-            <button onclick="CategoryMemory.clear();appModules.chat.toggleCatsPanel();appModules.chat.toggleCatsPanel()" style="margin-top:6px;background:none;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">
+            <button onclick="CategoryMemory.clear().then(()=>{appModules.chat.toggleCatsPanel();appModules.chat.toggleCatsPanel();appModules.ui.showMessage('Memória limpa','Histórico de correções removido.');})" style="margin-top:6px;background:none;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">
               <i class="ph ph-trash"></i> Limpar memória
             </button>
           </div>`;
@@ -3495,13 +3514,13 @@ const appModules = {
     },
 
     // Aplica a correção: aprende e atualiza a última transação do chat
-    applyCorrection(newCatId) {
+    async applyCorrection(newCatId) {
       if (!this._lastResult) return;
       const state = appModules.state.getState();
       const cat = Utils.getCategory(newCatId, state.categories);
 
-      // Aprende: grava memória com a descrição normalizada
-      CategoryMemory.learn(this._lastResult.descNorm, newCatId);
+      // Aprende: grava no banco (e cache) com a descrição normalizada
+      await CategoryMemory.learn(this._lastResult.descNorm, newCatId);
 
       // Atualiza a transação mais recente do chat no state (se existir)
       const lastChatTx = state.transactions.find(t => t.source === 'chat' && t.description === this._lastResult.description);
