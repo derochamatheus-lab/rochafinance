@@ -2017,12 +2017,18 @@
             </button>
           </div>
           <!-- HINT de categoria detectada com opção de corrigir -->
-          <div id="ai-category-hint" class="ai-category-hint">
+          <div id="ai-category-hint" class="ai-category-hint" style="flex-wrap:wrap;gap:6px">
             <i class="ph ph-robot" style="color:var(--accent);font-size:15px;flex-shrink:0"></i>
             <span class="ai-hint-label" id="ai-hint-source-label">Categoria detectada:</span>
             <span id="ai-hint-badge" class="ai-hint-badge"></span>
             <span id="ai-hint-type" style="font-size:10px;color:var(--text-muted)"></span>
-            <button id="ai-hint-change-btn" onclick="appModules.chat.openCategoryCorrection()" title="Alterar categoria" style="margin-left:auto;background:none;border:1px solid var(--border2);color:var(--text-muted);font-size:11px;padding:2px 8px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:4px;transition:all 0.15s">
+            <!-- CC toggle no chat -->
+            <button id="ai-cc-btn" onclick="appModules.chat.toggleCC()" title="Marcar como cartão de crédito"
+              style="background:none;border:1px solid var(--border2);color:var(--text-muted);font-size:11px;padding:2px 8px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:4px;transition:all 0.2s">
+              💳 Cartão
+            </button>
+            <button id="ai-hint-change-btn" onclick="appModules.chat.openCategoryCorrection()" title="Alterar categoria"
+              style="background:none;border:1px solid var(--border2);color:var(--text-muted);font-size:11px;padding:2px 8px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:4px;transition:all 0.15s">
               <i class="ph ph-pencil-simple" style="font-size:11px"></i> Corrigir
             </button>
           </div>
@@ -2184,6 +2190,20 @@
       <div class="form-group">
         <label class="form-label">Categoria</label>
         <select id="tx-category" class="form-select"></select>
+      </div>
+      <!-- FLAG CARTÃO -->
+      <div class="form-group" style="margin-top:4px">
+        <label class="cc-toggle-label" onclick="appModules.transactions.toggleCreditCard()" style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface2);transition:border-color 0.2s,background 0.2s" id="cc-toggle-wrap">
+          <span id="cc-toggle-icon" style="font-size:20px;flex-shrink:0">💳</span>
+          <span style="flex:1">
+            <span style="font-size:13px;font-weight:600;color:var(--text);display:block">Pagamento por cartão</span>
+            <span style="font-size:11px;color:var(--text-muted)">Marque se foi pago com cartão de crédito</span>
+          </span>
+          <span id="cc-toggle-switch" style="width:36px;height:20px;border-radius:10px;background:var(--border2);display:flex;align-items:center;padding:2px;transition:background 0.2s;flex-shrink:0">
+            <span id="cc-toggle-knob" style="width:16px;height:16px;border-radius:50%;background:#fff;transition:transform 0.2s;display:block"></span>
+          </span>
+        </label>
+        <input type="hidden" id="tx-is-credit-card" value="false">
       </div>
     </div>
     <div class="modal-footer">
@@ -2399,6 +2419,21 @@ const Utils = {
   formatCurrency: v => new Intl.NumberFormat('pt-BR', { style:'currency', currency:'BRL' }).format(v),
   getMonthYearStr: d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`,
   formatDate: s => { const [y,m,d] = s.split('-'); return `${d}/${m}/${y}`; },
+  // Retorna o dia 10 do mês seguinte à data ISO (ou hoje) no formato YYYY-MM-DD
+  nextMonthTenth: (refDate) => {
+    const d = refDate ? new Date(refDate + 'T00:00:00') : new Date();
+    let m = d.getMonth() + 2; // próximo mês (1-based)
+    let y = d.getFullYear();
+    if (m > 12) { m = 1; y += 1; }
+    return `${y}-${String(m).padStart(2,'0')}-10`;
+  },
+
+  formatDateTime: iso => {
+    if (!iso) return null;
+    const d = new Date(iso);
+    const pad = n => String(n).padStart(2,'0');
+    return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  },
   getCategory: (id, cats) => cats.find(c => c.id === id) || cats[cats.length-1],
   today: () => new Date().toISOString().split('T')[0],
   // Data efetiva: usa paymentDate quando existe, senão date
@@ -2421,7 +2456,8 @@ const DB = {
     type: t.type,
     source: t.source || 'manual',
     insertedBy: t.inserted_by || null,
-    createdAt: t.created_at
+    createdAt: t.created_at,
+    isCreditCard: t.is_credit_card || false
   }),
 
   mapRec: r => ({
@@ -2503,7 +2539,8 @@ const DB = {
       category_id: tx.categoryId,
       type: tx.type,
       source: tx.source || 'manual',
-      inserted_by: tx.insertedBy || UserAuth.getCurrentUser() || null
+      inserted_by: tx.insertedBy || UserAuth.getCurrentUser() || null,
+      is_credit_card: tx.isCreditCard || false
     });
     if (error) throw error;
   },
@@ -3100,9 +3137,15 @@ const appModules = {
 
           list.innerHTML += `
             <tr>
-              <td class="tx-date">${Utils.formatDate(tx.date)}</td>
+              <td class="tx-date" style="white-space:nowrap;line-height:1.6">
+                ${Utils.formatDate(tx.date)}
+                ${Utils.formatDateTime(tx.createdAt) ? `<br><span style="font-size:10px;color:var(--text-muted);letter-spacing:0.2px">⌚ ${Utils.formatDateTime(tx.createdAt).split(' ')[1]}</span>` : ''}
+              </td>
               <td class="tx-date">${pgto}</td>
-              <td class="tx-desc">${tx.description}${aiIcon}</td>
+              <td class="tx-desc">
+                ${tx.description}${aiIcon}
+                ${tx.isCreditCard ? '<span title="Cartão de crédito" style="margin-left:5px;font-size:11px;padding:1px 6px;border-radius:5px;background:#6366f122;color:#6366f1;font-weight:600;vertical-align:middle">💳 crédito</span>' : ''}
+              </td>
               <td>
                 <span class="cat-badge" style="background:${cat.color}18;color:${cat.color}">
                   <i class="ph ${cat.icon}" style="font-size:12px"></i>${cat.name}
@@ -3308,7 +3351,44 @@ const appModules = {
       this.setType('expense');
       document.getElementById('tx-desc').value = '';
       document.getElementById('tx-amount').value = '';
+      // Cartão ativado por padrão
+      const ccIn = document.getElementById('tx-is-credit-card');
+      if (ccIn) ccIn.value = 'true';
+      this._applyCCToggleUI(true);
+      // Preenche data de pagamento com dia 10 do mês seguinte
+      const pgtoDefault = document.getElementById('tx-payment-date');
+      if (pgtoDefault) pgtoDefault.value = Utils.nextMonthTenth(Utils.today());
       appModules.modals.open('modal-transaction');
+    },
+
+    toggleCreditCard() {
+      const input = document.getElementById('tx-is-credit-card');
+      if (!input) return;
+      const next = input.value !== 'true';
+      input.value = String(next);
+      this._applyCCToggleUI(next);
+      // Auto-preenche data de pagamento com dia 10 do mês seguinte
+      const pgto = document.getElementById('tx-payment-date');
+      const launch = document.getElementById('tx-date')?.value;
+      if (pgto) pgto.value = next ? Utils.nextMonthTenth(launch) : '';
+    },
+
+    _applyCCToggleUI(active) {
+      const wrap   = document.getElementById('cc-toggle-wrap');
+      const sw     = document.getElementById('cc-toggle-switch');
+      const knob   = document.getElementById('cc-toggle-knob');
+      if (!wrap) return;
+      if (active) {
+        wrap.style.borderColor = 'var(--accent)';
+        wrap.style.background  = 'var(--accent-muted)';
+        if (sw)   sw.style.background  = 'var(--accent)';
+        if (knob) knob.style.transform = 'translateX(16px)';
+      } else {
+        wrap.style.borderColor = 'var(--border)';
+        wrap.style.background  = 'var(--surface2)';
+        if (sw)   sw.style.background  = 'var(--border2)';
+        if (knob) knob.style.transform = 'translateX(0)';
+      }
     },
 
     setType(type) {
@@ -3343,6 +3423,10 @@ const appModules = {
       document.getElementById('tx-payment-date').value = tx.paymentDate || '';
 
       this.setType(tx.type);
+      // Restore credit card flag
+      const ccInput = document.getElementById('tx-is-credit-card');
+      if (ccInput) ccInput.value = String(!!tx.isCreditCard);
+      this._applyCCToggleUI(!!tx.isCreditCard);
       setTimeout(() => {
         const select = document.getElementById('tx-category');
         if (select) select.value = tx.categoryId;
@@ -3352,14 +3436,15 @@ const appModules = {
     },
 
     async save() {
-      const id          = document.getElementById('tx-id').value;
-      const desc        = document.getElementById('tx-desc').value.trim();
-      const amount      = parseFloat(document.getElementById('tx-amount').value);
-      const date        = document.getElementById('tx-date').value;
-      const paymentDate = document.getElementById('tx-payment-date').value || null;
-      const categoryId  = document.getElementById('tx-category').value;
-      const type        = document.getElementById('tx-type').value;
-      const source      = document.getElementById('tx-source').value;
+      const id           = document.getElementById('tx-id').value;
+      const desc         = document.getElementById('tx-desc').value.trim();
+      const amount       = parseFloat(document.getElementById('tx-amount').value);
+      const date         = document.getElementById('tx-date').value;
+      const paymentDate  = document.getElementById('tx-payment-date').value || null;
+      const categoryId   = document.getElementById('tx-category').value;
+      const type         = document.getElementById('tx-type').value;
+      const source       = document.getElementById('tx-source').value;
+      const isCreditCard = document.getElementById('tx-is-credit-card').value === 'true';
 
       if (!desc || !amount || !date || !categoryId) {
         appModules.ui.showMessage('Atenção', 'Preencha todos os campos!', 'error');
@@ -3373,6 +3458,7 @@ const appModules = {
         const tx = {
           id: id || Utils.generateId(),
           description: desc, amount, date, paymentDate, categoryId, type, source,
+          isCreditCard,
           insertedBy: UserAuth.getCurrentUser()
         };
 
@@ -3423,7 +3509,8 @@ const appModules = {
     handleKeyPress(e) { if (e.key === 'Enter') this.sendMessage(); },
 
     _hintTimeout: null,
-    _lastResult: null, // último resultado NLP para correção
+    _lastResult: null,   // último resultado NLP para correção
+    _isCreditCard: true,  // cartão ativado por padrão
 
     // Retorna número sequencial da categoria para exibir como código
     _catNumber(catId, categories) {
@@ -3434,6 +3521,31 @@ const appModules = {
       });
       const idx = sorted.findIndex(c => c.id === catId);
       return idx >= 0 ? idx + 1 : '?';
+    },
+
+    toggleCC() {
+      this._isCreditCard = !this._isCreditCard;
+      // Propaga data de pagamento para o próximo envio
+      if (this._lastResult) {
+        this._lastResult.paymentDate = this._isCreditCard ? Utils.nextMonthTenth(Utils.today()) : null;
+      }
+      this._updateCCBtn();
+    },
+
+    _updateCCBtn() {
+      const btn = document.getElementById('ai-cc-btn');
+      if (!btn) return;
+      if (this._isCreditCard) {
+        btn.style.background    = '#6366f122';
+        btn.style.borderColor   = '#6366f1';
+        btn.style.color         = '#6366f1';
+        btn.style.fontWeight    = '600';
+      } else {
+        btn.style.background    = 'none';
+        btn.style.borderColor   = 'var(--border2)';
+        btn.style.color         = 'var(--text-muted)';
+        btn.style.fontWeight    = 'normal';
+      }
     },
 
     // Popula e exibe painel de categorias com seus IDs
@@ -3581,6 +3693,13 @@ const appModules = {
             }
             hint.classList.add('visible');
             this._lastResult = result;
+            // Auto-detect cartão de crédito
+            const lv = value.toLowerCase();
+            if (lv.includes('cartão') || lv.includes('cartao') || lv.includes('crédito') || lv.includes('credito') || lv.includes(' cc ') || lv.includes(' cc')) {
+              this._isCreditCard = true;
+              result.paymentDate = Utils.nextMonthTenth(Utils.today());
+            }
+            this._updateCCBtn();
           }
         } else {
           if (hint) hint.classList.remove('visible');
@@ -3659,11 +3778,13 @@ const appModules = {
 
       this.appendMessage(text, true);
       input.value = '';
-      // Hide hints
+      // Hide hints & reset CC flag
       const hint = document.getElementById('ai-category-hint');
       if (hint) hint.classList.remove('visible');
       const corrPanel = document.getElementById('ai-correction-panel');
       if (corrPanel) corrPanel.style.display = 'none';
+      this._isCreditCard = true; // volta ao padrão cartão
+      this._updateCCBtn();
 
       setTimeout(async () => {
         const state  = appModules.state.getState();
@@ -3675,10 +3796,11 @@ const appModules = {
             description: result.description,
             amount: result.amount,
             date: Utils.today(),
-            paymentDate: result.paymentDate || null,
+            paymentDate: this._isCreditCard ? Utils.nextMonthTenth(Utils.today()) : (result.paymentDate || null),
             categoryId: result.categoryId,
             type: result.type,
             source: 'chat',
+            isCreditCard: this._isCreditCard,
             insertedBy: UserAuth.getCurrentUser(),
             createdAt: new Date().toISOString()
           };
@@ -3695,11 +3817,12 @@ const appModules = {
             const pgtoInfo = result.paymentDate
               ? `<br><small style="color:var(--text-muted)"><i class="ph ph-calendar-check"></i> Pagamento: ${Utils.formatDate(result.paymentDate)}</small>`
               : '';
+            const ccInfo = tx.isCreditCard ? `<br><small style="color:#6366f1">💳 Cartão de crédito</small>` : '';
             const memNote = result.matchSource === 'memory' ? `<br><small style="color:var(--accent)"><i class="ph ph-brain"></i> Categoria da memória</small>` : '';
             this.appendMessage(
               `✅ <strong>${result.description}</strong><br>` +
               `${Utils.formatCurrency(result.amount)} &mdash; ${srcIcon} <span style="color:${cat.color}">${cat.name}</span> <span style="color:var(--text-muted);font-size:11px">(#${catNum})</span>` +
-              `${pgtoInfo}${memNote}<br>` +
+              `${pgtoInfo}${ccInfo}${memNote}<br>` +
               `<small style="color:var(--text-muted)">Errou? Clique em <strong>Corrigir</strong> abaixo ou use <strong>#${catNum}</strong> para forçar.</small>`,
               false
             );
@@ -4294,6 +4417,9 @@ async function startApp() {
     overlay.classList.add('hidden');
     setTimeout(() => overlay.remove(), 400);
   }
+
+  // Inicializa botão de cartão do chat já ativo
+  setTimeout(() => appModules.chat._updateCCBtn(), 100);
 
   console.log('✅ Rocha Finance inicializado com Supabase!');
 }
