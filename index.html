@@ -3701,6 +3701,7 @@ const appModules = {
     _hintTimeout: null,
     _lastResult: null,   // último resultado NLP para correção
     _isCreditCard: true,  // cartão ativado por padrão
+    _fromVoice: false,   // flag: último envio veio por voz
 
     // Retorna número sequencial da categoria para exibir como código
     _catNumber(catId, categories) {
@@ -3939,7 +3940,10 @@ const appModules = {
         micBtn.classList.remove('recording');
         micIcon.className = 'ph ph-microphone';
         input.placeholder = 'Ex: Almoço no restaurante 35,00 ou #2 Gasolina 80';
-        if (input.value.trim()) setTimeout(() => this.sendMessage(), 300);
+        if (input.value.trim()) {
+          this._fromVoice = true;
+          setTimeout(() => this.sendMessage(), 300);
+        }
       };
 
       recognition.onerror = (e) => {
@@ -3968,11 +3972,11 @@ const appModules = {
 
       this.appendMessage(text, true);
       input.value = '';
-      // Hide hints & reset CC flag
+      // Hide hints (but NOT _lastResult — needed for correction after voice input)
       const hint = document.getElementById('ai-category-hint');
       if (hint) hint.classList.remove('visible');
-      const corrPanel = document.getElementById('ai-correction-panel');
-      if (corrPanel) corrPanel.style.display = 'none';
+      // Keep correction panel open if it was already open (voice flow)
+      // Reset CC flag
       this._isCreditCard = true; // volta ao padrão cartão
       this._updateCCBtn();
 
@@ -4026,6 +4030,16 @@ const appModules = {
               if (typeEl) { typeEl.textContent = result.type === 'income' ? '↑ Entrada' : '↓ Saída'; typeEl.style.color = result.type === 'income' ? 'var(--green)' : 'var(--red)'; }
               if (srcLabel) { const lbl = { id:'#ID:', memory:'<i class="ph ph-brain" style="color:var(--accent)"></i> Memória:', keyword:'Detectada:', fallback:'Padrão:' }; srcLabel.innerHTML = lbl[result.matchSource] || 'Detectada:'; }
               hint.classList.add('visible');
+            }
+
+            // Abrir painel de correção automaticamente após lançamento por voz
+            if (this._fromVoice) {
+              this._fromVoice = false;
+              setTimeout(() => this.openCategoryCorrection(), 100);
+            } else {
+              // Fechar painel se estava aberto de lançamento anterior
+              const corrPanel = document.getElementById('ai-correction-panel');
+              if (corrPanel) corrPanel.style.display = 'none';
             }
 
             // Verificar limite
