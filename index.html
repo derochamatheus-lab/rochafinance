@@ -460,6 +460,8 @@
     top: 0;
     z-index: 10;
     backdrop-filter: blur(12px);
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
   .topbar-title {
@@ -1367,9 +1369,10 @@
     .grid-3 { grid-template-columns: 1fr; }
     .grid-2 { grid-template-columns: 1fr; }
     .mobile-nav { display: block; }
-    .page-content { padding: 16px; padding-bottom: 80px; }
-    .topbar { padding: 14px 16px; }
-    .topbar-title { font-size: 18px; }
+    .page-content { padding: 16px; padding-bottom: 90px; }
+    .topbar { padding: 12px 16px; gap: 10px; }
+    .topbar-title { font-size: 17px; }
+    .topbar-actions .btn span, .topbar-actions .btn-text { display: none; } /* hide button labels */
     /* Transactions table scroll on mobile */
     .tx-table-wrap { overflow-x: auto; }
     .tx-table { min-width: 520px; }
@@ -1382,11 +1385,51 @@
     .balance-hero-value { font-size: 34px; }
     /* More menu button in topbar */
     #topbar-more-btn { display: inline-flex !important; }
-    /* Mobile month navigation */
-    .mobile-month-nav { display: flex; align-items: center; gap: 8px; padding: 8px; background: var(--surface2); border-radius: var(--radius-sm); margin-top: 8px; width: 100%; justify-content: center; }
-    .mobile-month-nav button { background: none; border: none; color: var(--text-soft); cursor: pointer; padding: 4px 8px; font-size: 16px; display: flex; align-items: center; transition: color 0.15s; }
-    .mobile-month-nav button:hover { color: var(--accent); }
-    .mobile-month-nav span { font-size: 12px; font-weight: 500; color: var(--text); min-width: 120px; text-align: center; }
+    /* Mobile month navigation — always visible, full width bar */
+    .mobile-month-nav {
+      display: flex !important;
+      align-items: center;
+      gap: 0;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      width: 100%;
+      order: 10; /* push below title+actions row */
+      overflow: hidden;
+    }
+    .mobile-month-nav button {
+      background: none;
+      border: none;
+      color: var(--text-soft);
+      cursor: pointer;
+      padding: 10px 16px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.15s, background 0.15s;
+      flex-shrink: 0;
+    }
+    .mobile-month-nav button:active { background: var(--border); color: var(--accent); }
+    .mobile-month-nav span {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      text-align: center;
+    }
+    /* Filters on mobile */
+    .tx-filters { gap: 8px; padding: 10px 12px; }
+    .tx-filter-group { flex-direction: row; align-items: center; gap: 6px; }
+    .tx-filter-label { display: none; }
+    .tx-filter-input { font-size: 13px; padding: 8px 10px; }
+    .tx-filter-select { font-size: 13px; padding: 8px 10px; }
+    /* Budget items on mobile */
+    .budget-last-month { min-width: 70px; }
+    .budget-input { width: 60px; }
+    /* Recurring totals on mobile */
+    #recurring-totals { grid-template-columns: 1fr 1fr; }
+    #recurring-totals .report-card:last-child { grid-column: 1 / -1; }
   }
 
   /* Mobile more menu */
@@ -1417,6 +1460,48 @@
   }
   .mob-menu-btn:hover { background: var(--surface2); color: var(--text); }
   .mob-menu-btn i { font-size: 16px; }
+
+  /* ---- BUDGET LAST MONTH COLUMN ---- */
+  .budget-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .budget-last-month {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    min-width: 90px;
+    gap: 2px;
+  }
+  .budget-last-month-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .budget-last-month-val {
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+    color: var(--text-soft);
+  }
+  .budget-last-month-bar {
+    width: 100%;
+    height: 3px;
+    background: var(--surface2);
+    border-radius: 2px;
+    margin-top: 2px;
+    overflow: hidden;
+  }
+  .budget-last-month-fill {
+    height: 100%;
+    border-radius: 2px;
+    opacity: 0.7;
+  }
 
   /* ---- BUDGET MONTH CONTROLS ---- */
   .budget-month-bar {
@@ -1824,7 +1909,7 @@
         </button>
       </div>
       <!-- Mobile Month Navigation -->
-      <div class="mobile-month-nav" id="mobile-month-nav" style="display:none">
+      <div class="mobile-month-nav" id="mobile-month-nav">
         <button onclick="appModules.navigation.changeMonth(-1)"><i class="ph ph-caret-left"></i></button>
         <span id="mobile-current-month">Maio 2026</span>
         <button onclick="appModules.navigation.changeMonth(1)"><i class="ph ph-caret-right"></i></button>
@@ -2916,14 +3001,15 @@ const appModules = {
       const catTotals = {};
       expenses.forEach(tx => { catTotals[tx.categoryId] = (catTotals[tx.categoryId] || 0) + tx.amount; });
 
-      const labels = [], data = [], bgColors = [];
+      const labels = [], data = [], bgColors = [], catIds = [];
       Object.keys(catTotals).forEach(catId => {
         const cat = Utils.getCategory(catId, state.categories);
         labels.push(cat.name);
         data.push(catTotals[catId]);
         bgColors.push(cat.color);
+        catIds.push(catId);
       });
-      this.renderChart(labels, data, bgColors);
+      this.renderChart(labels, data, bgColors, catIds);
       this.renderBudgetProgress(catTotals, state);
       this.renderBudgetSummary(catTotals, state);
     },
@@ -3011,7 +3097,7 @@ const appModules = {
       }
     },
 
-    renderChart(labels, data, bgColors) {
+    renderChart(labels, data, bgColors, catIds = []) {
       const canvas = document.getElementById('expensesChart');
       const noData = document.getElementById('no-chart-data');
       if (!canvas) return;
@@ -3026,22 +3112,65 @@ const appModules = {
       if (noData) noData.classList.add('hidden');
       if (window.expensesChartInstance) window.expensesChartInstance.destroy();
 
+      // Cursor pointer to hint it's clickable
+      canvas.style.cursor = 'pointer';
+
       const ctx = canvas.getContext('2d');
       window.expensesChartInstance = new Chart(ctx, {
         type: 'doughnut',
-        data: { labels, datasets: [{ data, backgroundColor: bgColors, borderWidth: 2, borderColor: '#181817' }] },
+        data: { labels, datasets: [{ data, backgroundColor: bgColors, borderWidth: 2, borderColor: '#181817', hoverBorderWidth: 3 }] },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
             legend: {
               position: 'right',
-              labels: { usePointStyle: true, font: { family: 'DM Sans', size: 11 }, color: '#a8a49e', boxWidth: 8, padding: 12 }
+              labels: { usePointStyle: true, font: { family: 'DM Sans', size: 11 }, color: '#a8a49e', boxWidth: 8, padding: 12 },
+              onClick: (e, legendItem) => {
+                const catId = catIds[legendItem.index];
+                if (catId) appModules.navigation.goToHistoryByCat(catId);
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: ctx => ` ${Utils.formatCurrency(ctx.parsed)}`
+              }
             }
           },
-          cutout: '72%'
+          cutout: '72%',
+          onClick: (e, elements) => {
+            if (elements.length > 0) {
+              const idx = elements[0].index;
+              const catId = catIds[idx];
+              if (catId) appModules.navigation.goToHistoryByCat(catId);
+            }
+          }
         }
       });
+    },
+
+    // Navigate to Histórico tab pre-filtered by category
+    goToHistoryByCat(catId) {
+      this.switchTab('transactions');
+      // Reset all filters then set category
+      ['filter-desc','filter-date-from','filter-date-to','filter-type','filter-user'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      const sel = document.getElementById('filter-category');
+      if (sel) {
+        sel.dataset.populated = ''; // force repopulate
+        // Populate first then set value
+        const state = appModules.state.getState();
+        this._populateCategoryFilter(state);
+        sel.value = catId;
+      }
+      this.applyTxFilters();
+      // Scroll to top of transactions
+      setTimeout(() => {
+        const wrap = document.querySelector('.tx-table-wrap');
+        if (wrap) wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
     },
 
     renderTransactions(filtered) {
@@ -3230,35 +3359,37 @@ const appModules = {
         return selectedMonthKey <= recEndMonthKey;
       });
 
-      validRecurrings.forEach(rec => {
+      // Separar pendentes e lançadas
+      const pending  = validRecurrings.filter(rec => !state.transactions.some(tx =>
+        tx.source === 'recurring' && tx.description === rec.description &&
+        Utils.getMonthYearStr(new Date(Utils.effectiveDate(tx))) === selectedMonthKey
+      ));
+      const launched = validRecurrings.filter(rec => state.transactions.some(tx =>
+        tx.source === 'recurring' && tx.description === rec.description &&
+        Utils.getMonthYearStr(new Date(Utils.effectiveDate(tx))) === selectedMonthKey
+      ));
+
+      // Total lançado (fixos já confirmados)
+      const totalLaunched = launched
+        .filter(r => r.type === 'expense')
+        .reduce((s, r) => s + r.amount, 0);
+
+      const renderRecItem = (rec, alreadyLaunched) => {
         const cat   = Utils.getCategory(rec.categoryId, state.categories);
         const isInc = rec.type === 'income';
         const freq  = freqLabel[rec.frequency] || rec.frequency;
         const endInfo = rec.endDate ? `<span style="color:var(--text-muted)"> · Até ${Utils.formatDate(rec.endDate)}</span>` : '';
         const dueInfo = rec.dueDay  ? `<span style="color:var(--text-muted)"> · Venc. dia ${rec.dueDay}</span>` : '';
         const isExpired = rec.endDate && rec.endDate < Utils.today();
-        
-        // Verificar se já foi lançada no mês selecionado
-        const alreadyLaunched = state.transactions.some(tx => 
-          tx.source === 'recurring' && 
-          tx.description === rec.description &&
-          Utils.getMonthYearStr(new Date(Utils.effectiveDate(tx))) === selectedMonthKey
-        );
-        
-        const launchedBadge = alreadyLaunched ? '<span style="font-size:10px;background:var(--green-muted);color:var(--green);padding:1px 6px;border-radius:4px;font-weight:600;margin-left:6px"><i class="ph ph-check-circle" style="font-size:9px;margin-right:2px"></i>Lançada</span>' : '';
-
-        list.innerHTML += `
-          <div class="rec-item" style="${isExpired ? 'opacity:0.5' : ''}">
+        return `
+          <div class="rec-item" style="${isExpired ? 'opacity:0.5' : ''}${alreadyLaunched ? 'background:var(--green-muted)' : ''}">
             <div class="rec-info" style="flex:1">
               <h4 style="display:flex;align-items:center;gap:6px">
                 ${rec.description}
                 ${isExpired ? '<span style="font-size:10px;background:var(--red-muted);color:var(--red);padding:1px 6px;border-radius:4px;font-weight:600">Encerrado</span>' : ''}
-                ${launchedBadge}
+                ${alreadyLaunched ? '<span style="font-size:10px;background:var(--green-muted);color:var(--green);padding:1px 6px;border-radius:4px;font-weight:600"><i class="ph ph-check-circle" style="font-size:9px;margin-right:2px"></i>Lançada</span>' : ''}
               </h4>
-              <p>
-                <i class="ph ph-repeat"></i> ${freq}${dueInfo}${endInfo}
-                &mdash; <span style="color:${cat.color}">${cat.name}</span>
-              </p>
+              <p><i class="ph ph-repeat"></i> ${freq}${dueInfo}${endInfo} &mdash; <span style="color:${cat.color}">${cat.name}</span></p>
             </div>
             <div style="text-align:right;margin-right:12px">
               <div class="rec-amount ${isInc ? 'income' : 'expense'}">${isInc ? '+' : '-'}${Utils.formatCurrency(rec.amount)}</div>
@@ -3275,7 +3406,29 @@ const appModules = {
               </button>
             </div>
           </div>`;
-      });
+      };
+
+      // Seção PENDENTES (topo)
+      if (pending.length > 0) {
+        list.innerHTML += `<div style="padding:10px 20px 6px;font-size:10px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-muted);background:var(--surface2);border-bottom:1px solid var(--border)">
+          <i class="ph ph-hourglass" style="font-size:11px"></i> Pendentes — ${pending.length} item${pending.length !== 1 ? 's' : ''}
+        </div>`;
+        pending.forEach(rec => { list.innerHTML += renderRecItem(rec, false); });
+      }
+
+      // Seção LANÇADAS (fim) com total
+      if (launched.length > 0) {
+        list.innerHTML += `<div style="padding:10px 20px 6px;font-size:10px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--green);background:var(--green-muted);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+          <span><i class="ph ph-check-circle" style="font-size:11px"></i> Lançadas — ${launched.length} item${launched.length !== 1 ? 's' : ''}</span>
+          ${totalLaunched > 0 ? `<span style="font-size:11px;color:var(--text-soft)">Total fixos: <strong style="color:var(--text)">${Utils.formatCurrency(totalLaunched)}</strong></span>` : ''}
+        </div>`;
+        launched.forEach(rec => { list.innerHTML += renderRecItem(rec, true); });
+        // Scroll automático ao final para mostrar lançadas
+        setTimeout(() => {
+          const lastItem = list.lastElementChild;
+          if (lastItem) lastItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+      }
     },
 
     renderReports() {
@@ -3297,14 +3450,51 @@ const appModules = {
       const monthBudgets = appModules.budgets.currentMonthBudgets();
       if (monthLabel) monthLabel.innerText = appModules.budgets._monthLabel();
 
+      // Calcular gastos do mês anterior por categoria
+      const prevDate = new Date(state.currentDate);
+      prevDate.setMonth(prevDate.getMonth() - 1);
+      const prevPrefix = Utils.getMonthYearStr(prevDate);
+      const prevMonthBudgets = state.budgets[prevPrefix] || {};
+
+      const prevSpending = {};
+      state.transactions
+        .filter(t => t.type === 'expense' && Utils.effectiveDate(t).startsWith(prevPrefix))
+        .forEach(t => { prevSpending[t.categoryId] = (prevSpending[t.categoryId] || 0) + t.amount; });
+
+      // Max gasto do mês anterior para escala da mini-barra
+      const maxPrev = Math.max(...Object.values(prevSpending), 1);
+
+      // Nomes dos meses para label
+      const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+      const prevMonthName = months[prevDate.getMonth()];
+
       state.categories.filter(c => c.type === 'expense').forEach(cat => {
-        const current = monthBudgets[cat.id] || 0;
+        const current  = monthBudgets[cat.id] || 0;
+        const prevAmt  = prevSpending[cat.id] || 0;
+        const prevLim  = prevMonthBudgets[cat.id] || 0;
+        const barPct   = prevAmt > 0 ? Math.min((prevAmt / maxPrev) * 100, 100) : 0;
+        const overPrev = prevLim > 0 && prevAmt > prevLim;
+        const barColor = overPrev ? 'var(--red)' : cat.color;
+
+        const prevHtml = prevAmt > 0
+          ? `<div class="budget-last-month-val" style="color:${overPrev ? 'var(--red)' : 'var(--text-soft)'}">
+               ${Utils.formatCurrency(prevAmt)}${prevLim > 0 ? ' / ' + Utils.formatCurrency(prevLim) : ''}
+             </div>
+             <div class="budget-last-month-bar">
+               <div class="budget-last-month-fill" style="width:${barPct}%;background:${barColor}"></div>
+             </div>`
+          : `<div class="budget-last-month-val" style="color:var(--border2)">—</div>`;
+
         list.innerHTML += `
           <div class="budget-item">
             <div class="budget-cat-icon" style="background:${cat.color}18;color:${cat.color}">
               <i class="ph ${cat.icon}"></i>
             </div>
             <span class="budget-cat-name">${cat.name}</span>
+            <div class="budget-last-month" title="Gasto em ${prevMonthName}">
+              <span class="budget-last-month-label"><i class="ph ph-clock-counter-clockwise" style="font-size:9px"></i> ${prevMonthName}</span>
+              ${prevHtml}
+            </div>
             <div class="budget-input-wrap">
               <span>R$</span>
               <input type="number" step="10" value="${current > 0 ? current : ''}" data-category="${cat.id}" class="budget-input" placeholder="0">
