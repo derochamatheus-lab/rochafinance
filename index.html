@@ -4043,7 +4043,10 @@ const appModules = {
             }
 
             // Verificar limite
-            if (result.type === 'expense') appModules.ui.checkBudgetAlert(result.categoryId, appModules.state.getState());
+            if (result.type === 'expense') {
+              const budgetCheckDate = tx.isCreditCard && tx.paymentDate ? new Date(tx.paymentDate) : state.currentDate;
+              appModules.ui.checkBudgetAlert(result.categoryId, appModules.state.getState(), budgetCheckDate);
+            }
           } catch (err) {
             console.error(err);
             this.appendMessage('❌ Erro ao salvar no banco. Verifique sua conexão.', false);
@@ -4383,14 +4386,16 @@ const appModules = {
       if (box) box.classList.add('hidden');
     },
 
-    checkBudgetAlert(categoryId, state) {
+    checkBudgetAlert(categoryId, state, checkDate = null) {
       const monthBudgets = appModules.budgets.currentMonthBudgets();
       const limit = monthBudgets[categoryId] || 0;
       if (limit <= 0) return; // sem limite configurado
 
-      const prefix = Utils.getMonthYearStr(state.currentDate);
+      // Para transações de cartão de crédito, o alerta de limite deve ser verificado para o mês de pagamento efetivo.
+      // Para outras transações, o alerta é para o mês atual selecionado.
+      const prefix = Utils.getMonthYearStr(checkDate || state.currentDate);
       const spent  = state.transactions
-        .filter(t => t.type === 'expense' && t.categoryId === categoryId && Utils.effectiveDate(t).startsWith(prefix))
+        .filter(t => t.type === 'expense' && t.categoryId === categoryId && Utils.getMonthYearStr(new Date(Utils.effectiveDate(t))) === prefix)
         .reduce((s, t) => s + t.amount, 0);
 
       if (spent <= limit) return;
