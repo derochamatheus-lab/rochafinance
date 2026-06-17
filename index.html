@@ -3977,7 +3977,7 @@ const appModules = {
       if (hint) hint.classList.remove('visible');
       // Keep correction panel open if it was already open (voice flow)
       // Reset CC flag
-      this._isCreditCard = true; // volta ao padrão cartão
+// this._isCreditCard = true; // volta ao padrão cartão (removido para respeitar o estado do toggle)
       this._updateCCBtn();
 
       setTimeout(async () => {
